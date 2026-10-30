@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EIGHT TRIP</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: High-Contrast Gothic Serif & Archivecore Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,400&display=swap" rel="stylesheet">
+
+  <!-- Three.js & OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <style>
+    :root {
+      --bg-obsidian: #05010a;
+      --bg-deep: #090314;
+      --violet-dark: #2c0b4d;
+      --violet-mid: #5a189a;
+      --violet-bright: #9d4edd;
+      --violet-glow: #c77dff;
+      --text-bone: #f2ebfb;
+      --text-muted: #9e8bb8;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #020106;
+      color: var(--text-bone);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+    }
+
+    /* CRT Scanlines & Archivecore Grid Overlay (Grid disabled in space) */
+    .archive-grid-bg {
+      background-image: none;
+    }
+
+    .crt-scanlines {
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.32) 50%
+      ), linear-gradient(
+        90deg,
+        rgba(255, 0, 0, 0.015),
+        rgba(0, 255, 0, 0.01),
+        rgba(0, 0, 255, 0.015)
+      );
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+
+    /* Reference Outlined Gothic Title Typography */
+    .gothic-outline-title {
+      font-family: 'Cinzel Decorative', 'Playfair Display', serif;
+      font-weight: 700;
+      color: #05010a;
+      -webkit-text-stroke: 1.6px #ffffff;
+      paint-order: stroke fill;
+      text-shadow:
+        0 0 18px rgba(157, 78, 221, 0.65),
+        0 0 42px rgba(90, 24, 154, 0.45);
+      letter-spacing: 0.06em;
+      transform: scaleY(1.28);
+      display: inline-block;
+    }
+
+    .gothic-outline-8 {
+      font-family: 'Cinzel Decorative', 'Playfair Display', serif;
+      font-weight: 900;
+      color: #05010a;
+      -webkit-text-stroke: 2.2px #ffffff;
+      paint-order: stroke fill;
+      filter: drop-shadow(0 0 28px rgba(199, 125, 255, 0.85)) drop-shadow(0 0 70px rgba(90, 24, 154, 0.9));
+      transform: scaleY(1.24);
+      display: inline-block;
+    }
+
+    /* Marquee Ticker Bars */
+    .marquee-strip {
+      background: linear-gradient(90deg, #240840 0%, #3f136e 50%, #240840 100%);
+      border-top: 1px solid rgba(199, 125, 255, 0.35);
+      border-bottom: 1px solid rgba(199, 125, 255, 0.35);
+      overflow: hidden;
+      white-space: nowrap;
+      position: relative;
+      z-index: 35;
+    }
+
+    .marquee-track {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marqueeScroll 32s linear infinite;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.22em;
+      color: #e8d7ff;
+      text-transform: uppercase;
+    }
+
+    @keyframes marqueeScroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Preloader Animations */
+    #preloader {
+      transition: opacity 0.9s cubic-bezier(0.7, 0, 0.2, 1), visibility 0.9s;
+    }
+
+    .preload-letter {
+      display: inline-block;
+      transition:
+        transform 0.85s cubic-bezier(0.76, 0, 0.24, 1),
+        opacity 0.65s ease,
+        filter 0.75s ease;
+      will-change: transform, opacity, filter;
+    }
+
+    #preload-eight-symbol {
+      opacity: 0;
+      transform: scale(0.25) scaleY(1.25);
+      transition:
+        opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.95s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.8s ease;
+    }
+
+    #preload-eight-symbol.active-morph {
+      opacity: 1;
+      transform: scale(1) scaleY(1.25);
+    }
+
+    #preload-eight-symbol.portal-zoom {
+      opacity: 0;
+      transform: scale(14) scaleY(1.25);
+      filter: blur(12px) drop-shadow(0 0 90px #ffffff);
+    }
+
+    /* Rotating Ring Emblem */
+    .omega-ring-spin {
+      animation: slowSpin 38s linear infinite;
+    }
+    @keyframes slowSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Custom Scrollbar for Right Panel */
+    .archive-scroll {
+      overflow-x: hidden;
+    }
+    .archive-scroll::-webkit-scrollbar {
+      width: 4px;
+      height: 0px;
+    }
+    .archive-scroll::-webkit-scrollbar-track {
+      background: rgba(9, 3, 20, 0.8);
+    }
+    .archive-scroll::-webkit-scrollbar-thumb {
+      background: #7b2cbf;
+      border-radius: 2px;
+    }
+
+    /* City Row Strike Effect like Reference Image 2 */
+    .route-city-item {
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .route-city-item::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 0%;
+      height: 1.5px;
+      background: linear-gradient(90deg, #ffffff, #c77dff);
+      box-shadow: 0 0 10px #c77dff;
+      transition: width 0.35s ease;
+      pointer-events: none;
+    }
+    .route-city-item:hover::after,
+    .route-city-item.active-city::after {
+      width: 100%;
+    }
+
+    /* 3D Floating City Pin Labels */
+    .globe-pin-label {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      pointer-events: auto;
+      cursor: pointer;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 15;
+    }
+    .globe-pin-label:hover {
+      transform: translate(-50%, -108%) scale(1.06);
+      z-index: 25;
+    }
+
+    /* Range Slider Styling for Scroll-World Scrubber */
+    input[type=range].archive-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range].archive-slider::-webkit-slider-runnable-track {
+      height: 4px;
+      background: linear-gradient(90deg, #3c096c, #c77dff, #3c096c);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    input[type=range].archive-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      background: #05010a;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 12px #c77dff;
+      margin-top: -8px;
+      cursor: pointer;
+      transform: rotate(45deg);
+    }
+  </style>
+</head>
+<body class="archive-grid-bg relative select-none">
+
+  <!-- ===================================================================== -->
+  <!-- 1. PRELOADER OVERLAY ("EIGHT TRIP" -> MORPHS INTO GIANT "8")          -->
+  <!-- ===================================================================== -->
+  <div id="preloader" class="fixed inset-0 z-50 bg-[#05010a] archive-grid-bg flex flex-col justify-between overflow-hidden">
+    <!-- Top Marquee inside Preloader -->
+    <div class="marquee-strip py-1.5">
+      <div class="marquee-track">
+        <span>EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION //&nbsp;</span>
+        <span>EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION //&nbsp;</span>
+      </div>
+    </div>
+
+    <!-- Center Stage with Purple Split Horizon Line (Reference Style) -->
+    <div class="relative flex-1 flex flex-col items-center justify-center px-4">
+      <!-- Reference-inspired Purple Split Beam SVG -->
+      <svg class="absolute inset-x-0 w-full h-44 pointer-events-none opacity-90" viewBox="0 0 1440 200" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="beamGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+            <stop offset="0%" stop-color="#3c096c" stop-opacity="0.9"/>
+            <stop offset="50%" stop-color="#7b2cbf" stop-opacity="1"/>
+            <stop offset="100%" stop-color="#3c096c" stop-opacity="0.9"/>
+          </linearGradient>
+        </defs>
+        <!-- Left Fork -->
+        <path d="M0,30 C90,30 130,100 220,100 L1220,100 C1310,100 1350,30 1440,30" fill="none" stroke="url(#beamGrad)" stroke-width="12"/>
+        <path d="M0,170 C90,170 130,100 220,100 L1220,100 C1310,100 1350,170 1440,170" fill="none" stroke="url(#beamGrad)" stroke-width="12"/>
+        <!-- Center Horizontal Core -->
+        <line x1="180" y1="100" x2="1260" y2="100" stroke="#9d4edd" stroke-width="16" stroke-opacity="0.45"/>
+      </svg>
+
+      <!-- Small Coordinate Markers along the Purple Line -->
+      <div class="absolute inset-x-0 flex justify-between max-w-5xl mx-auto px-12 pointer-events-none text-xs md:text-sm font-mono tracking-[0.35em] text-[#e0c3fc] opacity-80">
+        <span>Ω</span>
+        <span>I</span>
+        <span>Ω</span>
+      </div>
+
+      <!-- Morphing Container: "EIGHT TRIP" Letters -->
+      <div id="preload-word-container" class="relative z-10 flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-3 my-6">
+        <span class="preload-letter gothic-outline-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl" data-idx="-4.5">E</span>
+        <span class="preload-letter gothic-outline-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl" data-idx="-3.5">I</span>
+        <span class="preload-letter gothic-outline-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl" data-idx="-2.5">G</span>
+        <span class="preload-letter gothic-outline-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl" data-idx="-1.5">H</span>
+        <span class="preload-letter gothic-outline-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl" data-idx="-0.5">T</span>
+        <span class="preload-letter w-4 sm:w-8" data-idx="0"></span>
+        <span class="preload-letter gothic-outline-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl" data-idx="1.0">T</span>
+        <span class="preload-letter gothic-outline-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl" data-idx="2.0">R</span>
+        <span class="preload-letter gothic-outline-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl" data-idx="3.0">I</span>
+        <span class="preload-letter gothic-outline-title text-5xl sm:text-7xl md:text-8xl lg:text-9xl" data-idx="4.0">P</span>
+      </div>
+
+      <!-- Giant Morph Target: Colossal Outlined "8" -->
+      <div id="preload-eight-wrapper" class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+        <div id="preload-eight-symbol" class="gothic-outline-8 text-[9rem] sm:text-[13rem] md:text-[16rem] leading-none select-none">
+          8
+        </div>
+      </div>
+
+      <!-- Telemetry Progress & Status -->
+      <div id="preload-telemetry" class="relative z-10 mt-12 flex flex-col items-center space-y-3 transition-opacity duration-500">
+        <div class="flex items-center space-x-4 font-mono text-xs sm:text-sm tracking-[0.3em] text-[#c77dff]">
+          <span>ARCHIVE_SYNC</span>
+          <span class="text-white font-bold text-base sm:text-lg" id="preload-percent">00%</span>
+          <span>SATELLITE_3D</span>
+        </div>
+        <!-- Progress Bar -->
+        <div class="w-64 sm:w-80 h-[3px] bg-[#1a082e] border border-[#5a189a] overflow-hidden">
+          <div id="preload-bar" class="h-full bg-gradient-to-r from-[#7b2cbf] via-white to-[#c77dff] w-0 transition-all duration-100"></div>
+        </div>
+        <p id="preload-status" class="font-mono text-[10px] sm:text-xs tracking-[0.22em] text-[#9e8bb8] uppercase text-center">
+          ЗАГРУЗКА СПУТНИКОВОГО РЕЛЬЕФА ЗЕМЛИ И 3D АРХИТЕКТУРЫ...
+        </p>
+      </div>
+    </div>
+
+    <!-- Bottom Marquee inside Preloader -->
+    <div class="marquee-strip py-1.5">
+      <div class="marquee-track">
+        <span>EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION //&nbsp;</span>
+        <span>EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION //&nbsp;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 2. MAIN APPLICATION LAYOUT & 3D SATELLITE GLOBE VIEWPORT              -->
+  <!-- ===================================================================== -->
+
+  <!-- Top Scrolling Ticker Strip -->
+  <header class="fixed top-0 inset-x-0 z-30">
+    <div class="marquee-strip py-1">
+      <div class="marquee-track">
+        <span>EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION //&nbsp;</span>
+        <span>EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION //&nbsp;</span>
+      </div>
+    </div>
+
+    <!-- Top Navigation & Brand Header (Cleaned per feedback) -->
+    <div class="px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 bg-gradient-to-b from-[#05010a]/90 via-[#05010a]/50 to-transparent pointer-events-none">
+      <!-- Left Brand Emblem (Subtitle removed as requested) -->
+      <div class="flex items-center space-x-4 pointer-events-auto">
+        <button onclick="resetGlobeView()" class="group flex items-center space-x-3 text-left focus:outline-none" title="Общий план Земли">
+          <div class="w-10 h-10 rounded-full border border-white/75 bg-[#0c0317] flex items-center justify-center shadow-[0_0_15px_rgba(157,78,221,0.5)] group-hover:border-[#c77dff] transition">
+            <span class="font-['Cinzel_Decorative'] text-xl font-bold text-white">8</span>
+          </div>
+          <div class="font-['Cinzel_Decorative'] text-xl sm:text-2xl tracking-[0.18em] text-white leading-none drop-shadow-[0_0_10px_rgba(157,78,221,0.8)]">
+            EIGHT TRIP
+          </div>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Decorative Archivecore Background Ring Sigil (Left BackDrop) -->
+  <div class="fixed left-6 bottom-20 pointer-events-none opacity-25 hidden lg:block z-0">
+    <svg class="w-56 h-56 omega-ring-spin" viewBox="0 0 240 240">
+      <circle cx="120" cy="120" r="102" fill="none" stroke="#9d4edd" stroke-width="1.5"/>
+      <circle cx="120" cy="120" r="82" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="4 6"/>
+      <path id="omegaCirclePath" d="M 120, 120 m -92, 0 a 92,92 0 1,1 184,0 a 92,92 0 1,1 -184,0" fill="none"/>
+      <text fill="#e0c3fc" font-family="Cinzel Decorative, serif" font-size="11.5" letter-spacing="7.2">
+        <textPath href="#omegaCirclePath">8 Ω 8 Ω 8 Ω 8 Ω 8 Ω 8 Ω 8 Ω 8 Ω 8 Ω </textPath>
+      </text>
+    </svg>
+  </div>
+
+  <!-- 3D WebGL Canvas Container -->
+  <div id="canvas-container" class="fixed inset-0 z-10 cursor-grab active:cursor-grabbing"></div>
+
+  <!-- Dynamic 2D Projected City Labels Container (Cities only) -->
+  <div id="labels-container" class="fixed inset-0 pointer-events-none z-20 overflow-hidden"></div>
+
+  <!-- ===================================================================== -->
+  <!-- 3. LEFT BOTTOM: ACTIVE CITY CARD & SCROLL-WORLD ROUTE BAR             -->
+  <!-- ===================================================================== -->
+  <div class="fixed left-4 sm:left-6 bottom-11 z-30 w-[calc(100%-2rem)] sm:w-[410px] pointer-events-none flex flex-col gap-3">
+    
+    <!-- Selected City Archive Card (Strictly Cities Only) -->
+    <div id="city-detail-card" class="pointer-events-auto bg-[#070210]/90 backdrop-blur-md border border-[#9d4edd]/70 p-4 rounded shadow-[0_0_30px_rgba(0,0,0,0.9)] transition-all duration-500">
+      <div class="flex items-center justify-between border-b border-[#5a189a]/60 pb-2 mb-2.5">
+        <div class="flex items-center gap-2">
+          <span id="card-badge" class="px-2 py-0.5 text-[10px] font-mono bg-[#3c096c] text-white border border-[#c77dff]/50 uppercase tracking-widest">
+            ТОЧКА 01 // МАРШРУТ
+          </span>
+          <span id="card-code" class="font-mono text-xs text-[#c77dff] tracking-widest">
+            [РОССИЯ]
+          </span>
+        </div>
+        <span id="card-coords" class="font-mono text-[11px] text-[#a390b8]">
+          55.0302° N, 82.9204° E
+        </span>
+      </div>
+
+      <h2 id="card-title" class="font-['Playfair_Display'] text-2xl sm:text-3xl font-bold text-white tracking-wider uppercase">
+        НОВОСИБИРСК
+      </h2>
+
+      <!-- Neighbor City Navigation inside Card -->
+      <div class="mt-3 pt-2.5 border-t border-[#5a189a]/40 flex items-center justify-between gap-2">
+        <button onclick="stepCity(-1)" class="px-3 py-1 bg-[#14052b] hover:bg-[#3c096c] border border-white/30 text-[11px] font-mono tracking-wider uppercase text-white transition rounded">
+          ← ПРЕД. ГОРОД
+        </button>
+        <span id="card-status" class="font-mono text-[10px] text-[#c77dff] tracking-widest uppercase">
+          01 / 02
+        </span>
+        <button onclick="stepCity(1)" class="px-3 py-1 bg-[#14052b] hover:bg-[#3c096c] border border-white/30 text-[11px] font-mono tracking-wider uppercase text-white transition rounded">
+          СЛЕД. ГОРОД →
+        </button>
+      </div>
+    </div>
+
+    <!-- Scroll-World Continuous Route Scrubber (Cities Only) -->
+    <div class="pointer-events-auto bg-[#070210]/90 backdrop-blur-md border border-white/25 px-4 py-3 rounded shadow-[0_0_20px_rgba(0,0,0,0.85)]">
+      <div class="flex items-center justify-between text-[10px] font-mono tracking-[0.2em] text-[#c77dff] uppercase mb-1.5">
+        <span>SCROLL-WORLD // МАРШРУТ</span>
+        <span id="scrub-percentage" class="text-white font-bold">НОВОСИБИРСК ➔ ПЕКИН</span>
+      </div>
+      <input
+        id="route-scrubber"
+        type="range"
+        min="0"
+        max="1000"
+        value="0"
+        class="archive-slider"
+        oninput="onScrubberInput(this.value)"
+      />
+      <div class="flex justify-between text-[11px] font-mono text-[#d8c6f0] mt-1.5 tracking-widest">
+        <span class="cursor-pointer hover:text-white font-bold" onclick="flyToCity('novosibirsk')">01. НОВОСИБИРСК</span>
+        <span class="cursor-pointer hover:text-white text-[#9e8bb8]" onclick="scrubToMidFlight()">ДУГА ПОЛЁТА</span>
+        <span class="cursor-pointer hover:text-white font-bold" onclick="flyToCity('beijing')">02. ПЕКИН</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- 4. RIGHT PANEL: ARCHIVECORE CITIES SCHEDULE (MOVED UP & CLEANED)      -->
+  <!-- ===================================================================== -->
+  <aside class="fixed right-4 sm:right-6 top-16 bottom-11 z-30 w-[calc(100%-2rem)] sm:w-[360px] pointer-events-none flex flex-col justify-start">
+    <div class="pointer-events-auto w-full bg-[#06010d]/90 backdrop-blur-xl border border-white/35 shadow-[0_0_45px_rgba(90,24,154,0.45)] rounded flex flex-col overflow-hidden">
+      
+      <!-- Panel Top Gothic Emblem Header (Single-line 'МАРШРУТ ЭКСПЕДИЦИИ') -->
+      <div class="relative px-5 py-3.5 border-b border-[#5a189a] bg-gradient-to-b from-[#1a0633]/90 to-[#06010d]">
+        <div class="flex items-center justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <div class="font-mono text-[10px] tracking-[0.3em] text-[#c77dff] uppercase">
+              EIGHT TRIP // 8 Ω 8
+            </div>
+            <h3 class="font-['Cinzel_Decorative'] text-[15px] sm:text-[16px] text-white tracking-[0.12em] mt-1 whitespace-nowrap leading-none">
+              МАРШРУТ ЭКСПЕДИЦИИ
+            </h3>
+          </div>
+          <!-- Gothic Double-Cross Sigil SVG -->
+          <svg class="w-9 h-9 shrink-0 text-white opacity-90" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="28" stroke="#9d4edd" stroke-width="1.5"/>
+            <path d="M32 8V56M18 22H46M22 42H42" stroke="white" stroke-width="2.2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Cities Route List (Strictly Cities Only, No Coordinates or Horizontal Scroll) -->
+      <div class="p-4 space-y-4 archive-scroll overflow-y-auto overflow-x-hidden">
+
+        <!-- ================= CITY 01: NOVOSIBIRSK ================= -->
+        <div
+          id="city-nav-novosibirsk"
+          onclick="flyToCity('novosibirsk')"
+          class="city-nav-card cursor-pointer border border-[#5a189a]/80 hover:border-[#c77dff] bg-[#0d041c]/85 hover:bg-[#190836]/90 rounded px-4 py-3.5 transition group overflow-hidden"
+        >
+          <div class="route-city-item flex items-center justify-between gap-3">
+            <span class="font-mono text-xs sm:text-sm text-white/85 tracking-[0.16em] shrink-0">16.12</span>
+            <span class="font-['Cormorant_Garamond'] text-xl sm:text-[23px] font-bold tracking-[0.11em] text-[#b565ff] group-hover:text-white transition uppercase text-right leading-none truncate">
+              НОВОСИБИРСК
+            </span>
+          </div>
+        </div>
+
+        <!-- Connecting Flight Arc Button -->
+        <div class="flex items-center justify-center space-x-3 py-0.5">
+          <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#7b2cbf] to-transparent"></div>
+          <button
+            onclick="scrubToMidFlight()"
+            class="px-3.5 py-1 rounded-full border border-[#9d4edd]/60 bg-[#17062e] hover:bg-[#2d0e59] font-mono text-[10px] tracking-[0.22em] text-[#e0c3fc] uppercase transition shrink-0"
+          >
+            ✈ ПЕРЕЛЁТ 3 010 КМ
+          </button>
+          <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#7b2cbf] to-transparent"></div>
+        </div>
+
+        <!-- ================= CITY 02: BEIJING ================= -->
+        <div
+          id="city-nav-beijing"
+          onclick="flyToCity('beijing')"
+          class="city-nav-card cursor-pointer border border-[#5a189a]/80 hover:border-[#c77dff] bg-[#0d041c]/85 hover:bg-[#190836]/90 rounded px-4 py-3.5 transition group overflow-hidden"
+        >
+          <div class="route-city-item flex items-center justify-between gap-3">
+            <span class="font-mono text-xs sm:text-sm text-white/85 tracking-[0.16em] shrink-0">17.12</span>
+            <span class="font-['Cormorant_Garamond'] text-xl sm:text-[23px] font-bold tracking-[0.11em] text-[#b565ff] group-hover:text-white transition uppercase text-right leading-none truncate">
+              ПЕКИН
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Panel Footer (Cleaned: Only Ω 8 Ω symbol) -->
+      <div class="px-5 py-2.5 border-t border-[#5a189a] bg-[#05010a] flex items-center justify-end text-[11px] font-mono tracking-[0.25em] text-white">
+        <span>Ω 8 Ω</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Bottom Scrolling Marquee Strip -->
+  <footer class="fixed bottom-0 inset-x-0 z-30">
+    <div class="marquee-strip py-1">
+      <div class="marquee-track">
+        <span>EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION //&nbsp;</span>
+        <span>EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION // EIGHT TRIP // WORLD EXPEDITION //&nbsp;</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Fullscreen CRT Scanline Overlay -->
+  <div class="fixed inset-0 crt-scanlines z-40 pointer-events-none"></div>
+
+  <!-- ===================================================================== -->
+  <!-- 5. THREE.JS SATELLITE GLOBE, IDLE ROTATION & REALISTIC 3D MODELS      -->
+  <!-- ===================================================================== -->
+  <script>
+    /*************************************************************************
+     * 1. ROUTE CITIES DATA (STRICTLY CITIES AS POINTS)
+     *************************************************************************/
+    const GLOBE_RADIUS = 100;
+
+    const CITIES_MAP = {
+      novosibirsk: {
+        id: 'novosibirsk',
+        name: 'НОВОСИБИРСК',
+        date: '16.12',
+        orderBadge: 'ТОЧКА 01 // 16.12',
+        countryCode: '[РОССИЯ • НОВАТ]',
+        lat: 55.0302,
+        lon: 82.9204,
+        coordsText: '55.0302° N, 82.9204° E',
+        statusText: '01 / 02 // ТЕАТР НОВАТ',
+        camDist: 115.5
+      },
+      beijing: {
+        id: 'beijing',
+        name: 'ПЕКИН',
+        date: '17.12',
+        orderBadge: 'ТОЧКА 02 // 17.12',
+        countryCode: '[КИТАЙ • ГУГУН]',
+        lat: 39.9163,
+        lon: 116.3972,
+        coordsText: '39.9163° N, 116.3972° E',
+        statusText: '02 / 02 // ЗАПРЕТНЫЙ ГОРОД',
+        camDist: 115.5
+      }
+    };
+
+    const CITIES_LIST = [CITIES_MAP.novosibirsk, CITIES_MAP.beijing];
+    let currentCityIndex = 0;
+
+    /*************************************************************************
+     * 2. THREE.JS SCENE, CAMERA, RENDERER & 5-SEC IDLE AUTO-ROTATION
+     *************************************************************************/
+    const container = document.getElementById('canvas-container');
+    const labelsContainer = document.getElementById('labels-container');
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x020106, 0.0008);
+
+    const camera = new THREE.PerspectiveCamera(
+      42,
+      window.innerWidth / window.innerHeight,
+      0.5,
+      1600
+    );
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.18;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.055;
+    controls.rotateSpeed = 0.65;
+    controls.zoomSpeed = 0.9;
+    controls.enablePan = false;
+    controls.minDistance = 107.5;
+    controls.maxDistance = 330;
+    controls.autoRotate = false;
+    controls.autoRotateSpeed = 0.45;
+
+    // 5-Second Inactivity Timer for Auto-Rotation
+    let idleRotationTimeout = null;
+    let isCameraFlying = false;
+
+    function resetIdleRotationTimer() {
+      controls.autoRotate = false;
+      if (idleRotationTimeout) clearTimeout(idleRotationTimeout);
+      idleRotationTimeout = setTimeout(() => {
+        if (!isCameraFlying) {
+          controls.autoRotate = true;
+        }
+      }, 5000);
+    }
+
+    controls.addEventListener('start', () => {
+      isCameraFlying = false;
+      resetIdleRotationTimer();
+    });
+    controls.addEventListener('end', () => {
+      resetIdleRotationTimer();
+    });
+
+    ['pointerdown', 'wheel', 'touchstart'].forEach(evt => {
+      renderer.domElement.addEventListener(evt, resetIdleRotationTimer, { passive: true });
+    });
+
+    /*************************************************************************
+     * 3. LIGHTING & STARFIELD
+     *************************************************************************/
+    const ambientLight = new THREE.AmbientLight(0xdbeafe, 1.38);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.85);
+    sunLight.position.set(160, 220, 180);
+    scene.add(sunLight);
+
+    const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.55);
+    rimLight.position.set(-180, -110, -140);
+    scene.add(rimLight);
+
+    const globeGroup = new THREE.Group();
+    scene.add(globeGroup);
+
+    // Deep Space Starfield
+    (function createStarfield() {
+      const starGeo = new THREE.BufferGeometry();
+      const starCount = 2200;
+      const positions = new Float32Array(starCount * 3);
+      const colors = new Float32Array(starCount * 3);
+
+      for (let i = 0; i < starCount; i++) {
+        const r = 420 + Math.random() * 520;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+
+        positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+        positions[i * 3 + 2] = r * Math.cos(phi);
+
+        const c = new THREE.Color().setHSL(0.58 + Math.random() * 0.1, 0.25, 0.75 + Math.random() * 0.25);
+        colors[i * 3] = c.r;
+        colors[i * 3 + 1] = c.g;
+        colors[i * 3 + 2] = c.b;
+      }
+
+      starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      starGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      const starMat = new THREE.PointsMaterial({
+        size: 1.35,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.82
+      });
+      scene.add(new THREE.Points(starGeo, starMat));
+    })();
+
+    /*************************************************************************
+     * 4. SATELLITE EARTH GLOBE WITH RELIEF BUMP MAP & ATMOSPHERE
+     *************************************************************************/
+    function latLonToVector3(lat, lon, radius = GLOBE_RADIUS) {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+
+      const x = -(radius * Math.sin(phi) * Math.cos(theta));
+      const z = radius * Math.sin(phi) * Math.sin(theta);
+      const y = radius * Math.cos(phi);
+
+      return new THREE.Vector3(x, y, z);
+    }
+
+    // Procedural fallback canvas texture if offline
+    function createFallbackSatelliteCanvas() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 0, 512);
+      grad.addColorStop(0, '#0c223f');
+      grad.addColorStop(0.5, '#07172e');
+      grad.addColorStop(1, '#0c223f');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1024, 512);
+      return new THREE.CanvasTexture(c);
+    }
+
+    const earthGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 96, 96);
+    const earthMat = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      map: createFallbackSatelliteCanvas(),
+      bumpScale: 1.45,
+      specular: new THREE.Color(0x284b63),
+      shininess: 16
+    });
+    const earthMesh = new THREE.Mesh(earthGeo, earthMat);
+    globeGroup.add(earthMesh);
+
+    const texLoader = new THREE.TextureLoader();
+    texLoader.setCrossOrigin('anonymous');
+
+    texLoader.load(
+      'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
+      (tex) => {
+        tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        earthMat.map = tex;
+        earthMat.needsUpdate = true;
+      }
+    );
+
+    texLoader.load(
+      'https://unpkg.com/three-globe/example/img/earth-topology.png',
+      (bumpTex) => {
+        earthMat.bumpMap = bumpTex;
+        earthMat.bumpScale = 1.65;
+        earthMat.needsUpdate = true;
+      }
+    );
+
+    texLoader.load(
+      'https://unpkg.com/three-globe/example/img/earth-water.png',
+      (specTex) => {
+        earthMat.specularMap = specTex;
+        earthMat.needsUpdate = true;
+      }
+    );
+
+    // Subtle Natural Blue Atmospheric Halo (No Purple Shadow/Tint)
+    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.016, 64, 64);
+    const atmosMat = new THREE.MeshPhongMaterial({
+      color: 0x3b82f6,
+      transparent: true,
+      opacity: 0,
+      side: THREE.BackSide,
+      blending: THREE.AdditiveBlending
+    });
+    globeGroup.add(new THREE.Mesh(atmosGeo, atmosMat));
+
+    // Initial Camera View Centered Between Novosibirsk & Beijing
+    const initialCamPos = latLonToVector3(48.0, 99.0, 215);
+    camera.position.copy(initialCamPos);
+
+    /*************************************************************************
+     * 5. PERFECT SURFACE-NORMAL ALIGNMENT HELPER FOR 3D LANDMARKS
+     *************************************************************************/
+    const animatedObjects = [];
+    const clickableSceneryGroups = [];
+
+    function placeModelOnGlobe(modelGroup, lat, lon, cityId) {
+      // Embed slightly into the sphere radius so edges never float on the curved horizon
+      const surfacePos = latLonToVector3(lat, lon, GLOBE_RADIUS - 0.03);
+      const radialNormal = surfacePos.clone().normalize();
+
+      modelGroup.position.copy(surfacePos);
+
+      // Strictly align the model's local +Y axis with the Earth's radial surface normal
+      const upAxis = new THREE.Vector3(0, 1, 0);
+      modelGroup.quaternion.setFromUnitVectors(upAxis, radialNormal);
+
+      modelGroup.userData = { cityId };
+      clickableSceneryGroups.push(modelGroup);
+      globeGroup.add(modelGroup);
+    }
+
+    /*************************************************************************
+     * 6. LANDMARK 3D MODELS (NOVAT IN NOVOSIBIRSK & FORBIDDEN CITY IN BEIJING)
+     *************************************************************************/
+    // 6.1 NOVAT Opera and Ballet Theater (Novosibirsk)
+    (function buildNovatTheater() {
+      const novat = new THREE.Group();
+      const s = 0.72;
+      novat.scale.set(s, s, s);
+
+      const matGranite = new THREE.MeshStandardMaterial({ color: 0x3a353f, roughness: 0.8 });
+      const matTerracotta = new THREE.MeshStandardMaterial({ color: 0x9e2a2b, roughness: 0.55 });
+      const matWhiteMarble = new THREE.MeshStandardMaterial({ color: 0xf8f9fa, roughness: 0.35 });
+      const matSilverDome = new THREE.MeshStandardMaterial({
+        color: 0xd8dee9,
+        roughness: 0.25,
+        metalness: 0.78
+      });
+      const matWarmWindow = new THREE.MeshBasicMaterial({ color: 0xffd166 });
+
+      // Compact tapered granite foundation
+      const plinth = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.45, 1.25, 0.26, 24),
+        matGranite
+      );
+      plinth.position.y = 0.1;
+      novat.add(plinth);
+
+      // Main terracotta theater hall block
+      const mainHall = new THREE.Mesh(
+        new THREE.BoxGeometry(1.75, 0.62, 2.15),
+        matTerracotta
+      );
+      mainHall.position.set(0, 0.52, -0.1);
+      novat.add(mainHall);
+
+      // High stage fly-tower behind the dome
+      const stageTower = new THREE.Mesh(
+        new THREE.BoxGeometry(1.35, 0.95, 0.85),
+        matTerracotta
+      );
+      stageTower.position.set(0, 0.68, -0.72);
+      novat.add(stageTower);
+
+      // Classical front portico with white columns & pediment
+      const porticoRoof = new THREE.Mesh(
+        new THREE.BoxGeometry(1.48, 0.1, 0.55),
+        matWhiteMarble
+      );
+      porticoRoof.position.set(0, 0.82, 1.02);
+      novat.add(porticoRoof);
+
+      for (let i = -3; i <= 3; i++) {
+        const col = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.045, 0.05, 0.58, 10),
+          matWhiteMarble
+        );
+        col.position.set(i * 0.2, 0.52, 1.22);
+        novat.add(col);
+      }
+
+      // Circular colonnade drum under the dome
+      const drum = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.86, 0.88, 0.36, 28),
+        matWhiteMarble
+      );
+      drum.position.set(0, 0.92, 0.08);
+      novat.add(drum);
+
+      // Iconic Silver Ribbed Hemisphere Dome ("Siberian Coliseum")
+      const dome = new THREE.Mesh(
+        new THREE.SphereGeometry(0.84, 32, 20, 0, Math.PI * 2, 0, Math.PI / 2),
+        matSilverDome
+      );
+      dome.position.set(0, 1.08, 0.08);
+      novat.add(dome);
+
+      // Spire & lantern atop the dome
+      const spire = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.02, 0.08, 0.35, 12),
+        matSilverDome
+      );
+      spire.position.set(0, 1.98, 0.08);
+      novat.add(spire);
+
+      // Warm illuminated theater windows
+      const winStrip = new THREE.Mesh(
+        new THREE.BoxGeometry(1.78, 0.14, 1.6),
+        matWarmWindow
+      );
+      winStrip.position.set(0, 0.52, -0.05);
+      novat.add(winStrip);
+
+      placeModelOnGlobe(novat, CITIES_MAP.novosibirsk.lat, CITIES_MAP.novosibirsk.lon, 'novosibirsk');
+    })();
+
+    // 6.2 The Forbidden City / Hall of Supreme Harmony (Beijing)
+    (function buildForbiddenCity() {
+      const gugong = new THREE.Group();
+      const s = 0.74;
+      gugong.scale.set(s, s, s);
+
+      const matMarbleTerrace = new THREE.MeshStandardMaterial({ color: 0xf1faee, roughness: 0.35 });
+      const matImperialRed = new THREE.MeshStandardMaterial({ color: 0x9b1b1b, roughness: 0.45 });
+      const matGoldenRoof = new THREE.MeshStandardMaterial({
+        color: 0xf4a261,
+        roughness: 0.28,
+        metalness: 0.55,
+        emissive: 0x5c3806,
+        emissiveIntensity: 0.18
+      });
+      const matJadeTrim = new THREE.MeshStandardMaterial({ color: 0x2a9d8f, roughness: 0.4 });
+
+      // Compact 3-tier white marble imperial terrace (Xumi base)
+      const tier1 = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.22, 1.65), matMarbleTerrace);
+      tier1.position.y = 0.11;
+      gugong.add(tier1);
+
+      const tier2 = new THREE.Mesh(new THREE.BoxGeometry(1.82, 0.18, 1.38), matMarbleTerrace);
+      tier2.position.y = 0.31;
+      gugong.add(tier2);
+
+      const tier3 = new THREE.Mesh(new THREE.BoxGeometry(1.56, 0.16, 1.14), matMarbleTerrace);
+      tier3.position.y = 0.48;
+      gugong.add(tier3);
+
+      // Imperial crimson palace hall (Hall of Supreme Harmony)
+      const crimsonHall = new THREE.Mesh(
+        new THREE.BoxGeometry(1.32, 0.48, 0.86),
+        matImperialRed
+      );
+      crimsonHall.position.y = 0.78;
+      gugong.add(crimsonHall);
+
+      // Jade & gold decorative frieze beam
+      const frieze = new THREE.Mesh(
+        new THREE.BoxGeometry(1.36, 0.08, 0.9),
+        matJadeTrim
+      );
+      frieze.position.y = 0.99;
+      gugong.add(frieze);
+
+      // Lower golden hipped roof eave
+      const lowerRoof = new THREE.Mesh(
+        new THREE.ConeGeometry(1.18, 0.28, 4),
+        matGoldenRoof
+      );
+      lowerRoof.rotation.y = Math.PI / 4;
+      lowerRoof.scale.set(1.22, 1, 0.88);
+      lowerRoof.position.y = 1.15;
+      gugong.add(lowerRoof);
+
+      // Upper golden imperial roof eave with ridge
+      const upperRoof = new THREE.Mesh(
+        new THREE.ConeGeometry(0.96, 0.34, 4),
+        matGoldenRoof
+      );
+      upperRoof.rotation.y = Math.PI / 4;
+      upperRoof.scale.set(1.22, 1, 0.85);
+      upperRoof.position.y = 1.38;
+      gugong.add(upperRoof);
+
+      const roofRidge = new THREE.Mesh(
+        new THREE.BoxGeometry(0.82, 0.07, 0.08),
+        matGoldenRoof
+      );
+      roofRidge.position.y = 1.54;
+      gugong.add(roofRidge);
+
+      placeModelOnGlobe(gugong, CITIES_MAP.beijing.lat, CITIES_MAP.beijing.lon, 'beijing');
+    })();
+
+    /*************************************************************************
+     * 7. 2D FLOATING CITY LABELS ON GLOBE
+     *************************************************************************/
+    const cityDomLabels = [];
+
+    CITIES_LIST.forEach((city) => {
+      const el = document.createElement('div');
+      el.className = 'globe-pin-label';
+      el.innerHTML = `
+        <div class="flex flex-col items-center group">
+          <div class="px-3 py-1 bg-[#07020e]/95 border border-[#9d4edd] rounded shadow-[0_0_16px_rgba(157,78,221,0.75)] flex items-center space-x-2">
+            <span class="w-2 h-2 rounded-full bg-[#c77dff] animate-pulse"></span>
+            <span class="font-mono text-[11px] font-bold tracking-[0.18em] text-white uppercase whitespace-nowrap">${city.name}</span>
+          </div>
+          <div class="w-[1px] h-4 bg-gradient-to-b from-[#c77dff] to-white/60"></div>
+          <div class="w-2.5 h-2.5 rounded-full border border-white bg-[#7b2cbf] shadow-[0_0_10px_#c77dff]"></div>
+        </div>
+      `;
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        flyToCity(city.id);
+      });
+      labelsContainer.appendChild(el);
+
+      cityDomLabels.push({
+        id: city.id,
+        lat: city.lat,
+        lon: city.lon,
+        altitude: 2.35,
+        el
+      });
+    });
+
+    /*************************************************************************
+     * 8. 3D FLIGHT ARC (NOVOSIBIRSK ➔ BEIJING) & S7 AIRLINES AIRBUS A321
+     *************************************************************************/
+    const startFlightVec = latLonToVector3(CITIES_MAP.novosibirsk.lat, CITIES_MAP.novosibirsk.lon, GLOBE_RADIUS + 0.15);
+    const midFlightVec = latLonToVector3(48.0, 99.5, GLOBE_RADIUS + 16.5);
+    const endFlightVec = latLonToVector3(CITIES_MAP.beijing.lat, CITIES_MAP.beijing.lon, GLOBE_RADIUS + 0.15);
+
+    const flightCurve = new THREE.QuadraticBezierCurve3(
+      startFlightVec,
+      midFlightVec,
+      endFlightVec
+    );
+
+    const arcTubeGeo = new THREE.TubeGeometry(flightCurve, 96, 0.14, 12, false);
+    const arcTubeMat = new THREE.MeshBasicMaterial({
+      color: 0xc77dff,
+      transparent: true,
+      opacity: 0.68
+    });
+    globeGroup.add(new THREE.Mesh(arcTubeGeo, arcTubeMat));
+
+    // =========================================================================
+    // HIGH-DETAIL PROCEDURAL TEXTURES & 3D GEOMETRY FOR S7 AIRLINES A321 (VQ-BGU)
+    // =========================================================================
+    function createS7FuselageTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 2048;
+      canvas.height = 1024;
+      const ctx = canvas.getContext('2d');
+
+      // UV Mapping Notes for LatheGeometry rotated with rotateX(Math.PI / 2):
+      // V = 1.0 -> Nose Tip (+Z = +2.10), V = 0.0 -> Tail Cone Tip (-Z = -2.25)
+      // Therefore: Y_canvas = 0 is Nose (+Z), Y_canvas = 1024 is Tail (-Z)
+      // U = 0.25 -> Top Roof (+Y), U = 0.75 -> Bottom Belly (-Y)
+      // U = 0.0 / 1.0 -> Port Left Side (+X), U = 0.50 -> Starboard Right Side (-X)
+
+      // 1. Base Fill: S7 Bright Yellow-Lime Green (#A4E200)
+      ctx.fillStyle = '#a4e200';
+      ctx.fillRect(0, 0, 2048, 1024);
+
+      // Helper to convert normalized Z (-2.25 tail to +2.10 nose) to Canvas Y (1024 to 0)
+      const zToY = (z) => ((2.10 - z) / 4.35) * 1024;
+
+      // 2. S7 Rich Emerald Green (#2D9A27) Rear Fuselage & Belly Section (matching VQ-BGU photo)
+      // On the photo:
+      // - Ahead of wing (around z = +0.55): diagonal boundary rises from belly up to mid-cabin
+      // - Along cabin above wing (z = +0.42 to z = -1.15): boundary runs horizontally just below windows
+      // - At rear cabin before Door 4 (z = -1.15 to z = -1.35): boundary curves up over the roof
+      // - Entire rear tail section (z < -1.35) is rich emerald green (#2D9A27)
+      ctx.fillStyle = '#2d9a27';
+      ctx.beginPath();
+      ctx.rect(0, zToY(-1.28), 2048, 1024 - zToY(-1.28));
+      ctx.fill();
+
+      // Belly emerald green band extending forward under the wing to z = +0.72
+      // Belly is centered at U = 0.75 (X = 1536), spanning from U = 0.56 (X = 1146) to U = 0.94 (X = 1925)
+      ctx.fillStyle = '#2d9a27';
+      ctx.beginPath();
+      ctx.moveTo(1110, zToY(-1.28));
+      ctx.lineTo(1155, zToY(0.45));
+      ctx.quadraticCurveTo(1536, zToY(0.85), 1917, zToY(0.45));
+      ctx.lineTo(1962, zToY(-1.28));
+      ctx.closePath();
+      ctx.fill();
+
+      // Port & Starboard Mid-Lower Fuselage Emerald Green + Crisp White S7 Stripe
+      // Port side waterline: Roof is X=512, Side equator is X=0 (and 2048), Belly is X=1536.
+      // Moving from Roof (512) -> Port Side (0 / 2048) -> Belly (1536):
+      // Let's draw symmetrical livery contours around Roof (X = 512) so both Port and Starboard match!
+      // Distance `d` from Roof Centerline (X = 512):
+      //   d = 0   -> Top Roof centerline
+      //   d = 310 -> Window line
+      //   d = 420 -> Lower cabin (S7 horizontal green/lime split above wing)
+      //   d = 512 -> Side Equator
+      //   d = 750 -> Lower belly
+
+      // Paint Emerald Green on lower sides & rear curve (symmetric around X = 512)
+      ctx.fillStyle = '#2d9a27';
+      [-1, 1].forEach((dir) => {
+        ctx.beginPath();
+        // Start at roof where rear curve meets top (z = -1.28)
+        ctx.moveTo(512, zToY(-1.28));
+        // Curve forward to window level at z = -1.12
+        ctx.quadraticCurveTo(512 + dir * 260, zToY(-1.26), 512 + dir * 365, zToY(-1.05));
+        // Run horizontally forward just below windows to z = +0.42 (ahead of wing)
+        ctx.lineTo(512 + dir * 380, zToY(0.42));
+        // Diagonal slash down-forward toward belly at z = +0.72
+        ctx.lineTo(512 + dir * 680, zToY(0.72));
+        // Back to tail along lower belly
+        ctx.lineTo(512 + dir * 680, 1024);
+        ctx.lineTo(512, 1024);
+        ctx.closePath();
+        ctx.fill();
+      });
+
+      // Handle wrap-around for Port side (where 512 - d < 0 wraps to 2048 + (512 - d))
+      ctx.fillStyle = '#2d9a27';
+      ctx.beginPath();
+      ctx.moveTo(2048, zToY(0.48));
+      ctx.lineTo(2048 - 170, zToY(0.72));
+      ctx.lineTo(2048 - 170, 1024);
+      ctx.lineTo(2048, 1024);
+      ctx.closePath();
+      ctx.fill();
+
+      // Crisp White S7 Livery Divider Line along the Lime / Emerald boundary
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 7;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      [-1, 1].forEach((dir) => {
+        ctx.beginPath();
+        ctx.moveTo(512, zToY(-1.28));
+        ctx.quadraticCurveTo(512 + dir * 260, zToY(-1.26), 512 + dir * 365, zToY(-1.05));
+        ctx.lineTo(512 + dir * 380, zToY(0.42));
+        ctx.lineTo(512 + dir * 640, zToY(0.68));
+        ctx.stroke();
+      });
+      // Wrap-around white diagonal on Port lower side
+      ctx.beginPath();
+      ctx.moveTo(2048, zToY(0.57));
+      ctx.lineTo(2048 - 130, zToY(0.68));
+      ctx.stroke();
+
+      // 3. Dark Grey Wing-Box Belly Center Section & Silver Radome Tip Ring
+      ctx.fillStyle = '#adb5bd';
+      ctx.fillRect(0, 0, 2048, 12);
+
+      // 4. Authentic 6-Pane Airbus A321 Cockpit Windshield Mask (Centered on Roof side X = 512, near Z = +1.48)
+      const windY = zToY(1.48);
+      ctx.fillStyle = '#0b101b';
+      ctx.strokeStyle = '#d8f3dc';
+      ctx.lineWidth = 3;
+
+      [-1, 1].forEach((dir) => {
+        // Pane 1: Front Center Windshield
+        ctx.beginPath();
+        ctx.moveTo(512 + dir * 8, windY - 12);
+        ctx.lineTo(512 + dir * 68, windY - 9);
+        ctx.lineTo(512 + dir * 74, windY + 24);
+        ctx.lineTo(512 + dir * 8, windY + 22);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Pane 2: Middle Cheek Window
+        ctx.beginPath();
+        ctx.moveTo(512 + dir * 80, windY - 7);
+        ctx.lineTo(512 + dir * 145, windY - 2);
+        ctx.lineTo(512 + dir * 150, windY + 28);
+        ctx.lineTo(512 + dir * 82, windY + 25);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Pane 3: Iconic Airbus Notched Aft Cockpit Side Window
+        ctx.beginPath();
+        ctx.moveTo(512 + dir * 154, windY);
+        ctx.lineTo(512 + dir * 218, windY + 8);
+        ctx.lineTo(512 + dir * 230, windY + 34);
+        ctx.lineTo(512 + dir * 185, windY + 38);
+        ctx.lineTo(512 + dir * 156, windY + 29);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      });
+
+      // 5. Dense Airbus A321 Passenger Cabin Window Line & 4 Doors per Side (L1-L4 / R1-R4)
+      // Door Z positions on A321:
+      // Door 1 (Fwd): z = +1.18
+      // Door 2 (Ahead of wing): z = +0.52
+      // Door 3 (Aft of wing): z = -0.52
+      // Door 4 (Rear): z = -1.42
+      const doorZPositions = [1.18, 0.52, -0.52, -1.42];
+
+      [-1, 1].forEach((dir) => {
+        const winCenterX = 512 + dir * 320;
+
+        // Draw Passenger Windows along cabin from z = +1.02 down to z = -1.24
+        for (let z = 1.02; z >= -1.24; z -= 0.048) {
+          // Skip spaces where Doors 2 & 3 sit
+          if (Math.abs(z - 0.52) < 0.09 || Math.abs(z - (-0.52)) < 0.09) continue;
+
+          const wy = zToY(z);
+          // Outer silver-white window frame
+          ctx.fillStyle = 'rgba(255,255,255,0.75)';
+          ctx.beginPath();
+          ctx.roundRect(winCenterX - 9, wy - 4.5, 18, 9, 4.5);
+          ctx.fill();
+
+          // Dark tinted acrylic window pane
+          ctx.fillStyle = '#141b29';
+          ctx.beginPath();
+          ctx.roundRect(winCenterX - 7, wy - 3.2, 14, 6.4, 3);
+          ctx.fill();
+        }
+
+        // Draw the 4 Airbus A321 Cabin Doors with crisp white outlines & small viewing window
+        doorZPositions.forEach((dz) => {
+          const dy = zToY(dz);
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.roundRect(winCenterX - 24, dy - 16, 52, 32, 8);
+          ctx.stroke();
+
+          // Small circular door window
+          ctx.fillStyle = '#141b29';
+          ctx.beginPath();
+          ctx.arc(winCenterX - 4, dy, 4, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Russian Tricolor Flag next to Front Door 1 (as seen on VQ-BGU photo)
+        const flagY = zToY(1.29);
+        const flagX = winCenterX - 6;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(flagX, flagY, 8, 5);
+        ctx.fillStyle = '#0039a6';
+        ctx.fillRect(flagX - 5, flagY, 5, 5);
+        ctx.fillStyle = '#d52b1e';
+        ctx.fillRect(flagX - 10, flagY, 5, 5);
+      });
+
+      // 6. Forward Fuselage "S7 Airlines" Circle Logo + Title & Rear "VQ-BGU" Registration
+      // Helper to draw properly oriented text on Starboard (dir = +1, X = 890) and Port (dir = -1, X = 134)
+      function drawSideBranding(sideX, isStarboard) {
+        ctx.save();
+        ctx.translate(sideX, zToY(0.86));
+        ctx.rotate(isStarboard ? Math.PI / 2 : -Math.PI / 2);
+
+        // White S7 Circle Emblem
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(-52, 0, 26, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Lime "S7" cutout inside circle
+        ctx.fillStyle = '#a4e200';
+        ctx.font = '900 26px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('S7', -52, 1);
+
+        // White "Airlines" title next to circle
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 28px Arial, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('Airlines', -18, 2);
+        ctx.restore();
+
+        // Rear Registration "VQ-BGU" near Door 4
+        ctx.save();
+        ctx.translate(sideX - (isStarboard ? 55 : -55), zToY(-1.56));
+        ctx.rotate(isStarboard ? Math.PI / 2 : -Math.PI / 2);
+        ctx.fillStyle = '#111827';
+        ctx.font = 'bold 16px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('VQ-BGU', 0, 0);
+        ctx.restore();
+      }
+
+      drawSideBranding(512 + 395, true);  // Starboard right side
+      drawSideBranding(512 - 395, false); // Port left side
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.ClampToEdgeWrapping;
+      tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      return tex;
+    }
+
+    // Custom Canvas Texture for the Swept-Back Vertical Tail Fin (S7 Logo + White Leading Edge Fillet)
+    function createS7TailFinTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+
+      // Base Emerald Green (#2D9A27) with subtle Bright Lime-Green (#72C814) top corner gradient
+      const grad = ctx.createLinearGradient(0, 512, 512, 0);
+      grad.addColorStop(0.0, '#2d9a27');
+      grad.addColorStop(0.68, '#36a629');
+      grad.addColorStop(1.0, '#8ce000');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+
+      // White Dorsal Fillet Triangle at Bottom-Front Corner (matching VQ-BGU photo)
+      ctx.fillStyle = '#f8fafc';
+      ctx.beginPath();
+      ctx.moveTo(0, 512);
+      ctx.lineTo(185, 512);
+      ctx.quadraticCurveTo(95, 430, 0, 340);
+      ctx.closePath();
+      ctx.fill();
+
+      // Giant Crisp White "S7" Tail Fin Logo
+      ctx.save();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 235px Arial, Helvetica, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.translate(275, 290);
+      ctx.rotate(-0.12);
+      ctx.fillText('S7', 0, 0);
+      ctx.restore();
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      return tex;
+    }
+
+    // Build Authentic Swept-Back 3D Wing Mesh with Airfoil Camber, Grey Upper Surface & Silver Leading Edge
+    // Guaranteed Coordinate System:
+    //   +Z = Forward (toward Nose)
+    //   -Z = Backward (toward Tail)
+    //   +Y = Upward
+    //   side = +1 (Port / Left wing +X) or -1 (Starboard / Right wing -X)
+    function createSweptAirfoilMesh(rootX, tipX, rootLEZ, rootTEZ, tipLEZ, tipTEZ, rootY, tipY, rootThick, tipThick, matMain, matLeadingEdge) {
+      const group = new THREE.Group();
+      const spanSegments = 18;
+      const profilePts = 20; // Around airfoil perimeter from TE -> upper -> LE -> lower -> TE
+
+      // NACA-style symmetric cambered airfoil coordinates (u from 0 at LE to 1 at TE)
+      const positions = [];
+      const uvs = [];
+      const indices = [];
+
+      for (let i = 0; i <= spanSegments; i++) {
+        const s = i / spanSegments;
+        const x = rootX + (tipX - rootX) * s;
+        const leZ = rootLEZ + (tipLEZ - rootLEZ) * s;
+        const teZ = rootTEZ + (tipTEZ - rootTEZ) * s;
+        const chord = leZ - teZ; // positive because leZ > teZ
+        const yBase = rootY + (tipY - rootY) * s;
+        const thick = rootThick + (tipThick - rootThick) * s;
+
+        for (let j = 0; j <= profilePts; j++) {
+          const theta = (j / profilePts) * Math.PI * 2;
+          // u = 0 at leading edge (theta = PI), u = 1 at trailing edge (theta = 0 or 2*PI)
+          const u = 0.5 * (1 + Math.cos(theta));
+          const z = leZ - u * chord;
+
+          // Airfoil thickness distribution
+          const yt = 5 * thick * (0.2969 * Math.sqrt(u) - 0.1260 * u - 0.3516 * u * u + 0.2843 * Math.pow(u, 3) - 0.1015 * Math.pow(u, 4));
+          // Slight positive camber on upper wing surface
+          const camber = 0.022 * chord * 4 * u * (1 - u);
+          const signY = Math.sin(theta) >= 0 ? 1 : -0.65;
+          const y = yBase + camber + signY * yt;
+
+          positions.push(x, y, z);
+          uvs.push(s, u);
+        }
+      }
+
+      const ringVerts = profilePts + 1;
+      for (let i = 0; i < spanSegments; i++) {
+        for (let j = 0; j < profilePts; j++) {
+          const a = i * ringVerts + j;
+          const b = (i + 1) * ringVerts + j;
+          const c = (i + 1) * ringVerts + (j + 1);
+          const d = i * ringVerts + (j + 1);
+
+          if (tipX >= rootX) {
+            indices.push(a, b, d);
+            indices.push(b, c, d);
+          } else {
+            indices.push(a, d, b);
+            indices.push(b, d, c);
+          }
+        }
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+      geo.setIndex(indices);
+      geo.computeVertexNormals();
+
+      const mesh = new THREE.Mesh(geo, matMain);
+      group.add(mesh);
+
+      // Metallic Silver Leading Edge Slat Strip along the front of the wing
+      if (matLeadingEdge) {
+        const leCurve = new THREE.LineCurve3(
+          new THREE.Vector3(rootX, rootY + 0.004, rootLEZ - 0.005),
+          new THREE.Vector3(tipX, tipY + 0.002, tipLEZ - 0.003)
+        );
+        const leTube = new THREE.TubeGeometry(leCurve, 12, rootThick * 0.42, 10, false);
+        leTube.scale(1, 0.55, 1.3);
+        group.add(new THREE.Mesh(leTube, matLeadingEdge));
+      }
+
+      return group;
+    }
+
+    // Build Complete High-Precision Airbus A321 in S7 Airlines Livery (VQ-BGU)
+    function buildS7AirbusA321() {
+      const planeRoot = new THREE.Group();
+      const visualPlane = new THREE.Group();
+      planeRoot.add(visualPlane);
+
+      const baseScale = 0.92;
+      planeRoot.userData.baseScale = baseScale;
+
+      // Materials matching VQ-BGU reference photos
+      const fuselageTex = createS7FuselageTexture();
+      const tailFinTex = createS7TailFinTexture();
+
+      const matFuselage = new THREE.MeshStandardMaterial({
+        map: fuselageTex,
+        roughness: 0.20,
+        metalness: 0.12
+      });
+      const matS7Lime = new THREE.MeshStandardMaterial({
+        color: 0xa4e200,
+        roughness: 0.22,
+        metalness: 0.12
+      });
+      const matS7Emerald = new THREE.MeshStandardMaterial({
+        color: 0x2d9a27,
+        roughness: 0.24,
+        metalness: 0.14
+      });
+      const matAirbusWingGrey = new THREE.MeshStandardMaterial({
+        color: 0xd8dee6,
+        roughness: 0.30,
+        metalness: 0.25
+      });
+      const matSilverLeadingEdge = new THREE.MeshStandardMaterial({
+        color: 0xf1f5f9,
+        roughness: 0.14,
+        metalness: 0.88
+      });
+      const matFanDark = new THREE.MeshStandardMaterial({
+        color: 0x111827,
+        roughness: 0.35,
+        metalness: 0.75
+      });
+      const matTireBlack = new THREE.MeshStandardMaterial({
+        color: 0x18181b,
+        roughness: 0.75,
+        metalness: 0.1
+      });
+
+      // =======================================================================
+      // 1. ELONGATED NARROW-BODY AIRBUS A321 FUSELAGE (Tail -2.25 to Nose +2.10)
+      // =======================================================================
+      const rawFuselageProfile = [
+        [0.000, -2.25], // APU exhaust tip at tail
+        [0.028, -2.21], // APU metallic nozzle rim
+        [0.068, -2.02], // Tailcone taper
+        [0.122, -1.78],
+        [0.178, -1.52],
+        [0.218, -1.26],
+        [0.236, -0.98], // Rear cabin transition
+        [0.240, -0.50], // Constant narrow-body A321 cylinder
+        [0.240,  0.50],
+        [0.240,  1.22], // Forward cabin section
+        [0.230,  1.42], // Cockpit crown
+        [0.194,  1.62], // Windshield slope
+        [0.140,  1.80], // Airbus rounded radome nose cone
+        [0.085,  1.95],
+        [0.038,  2.05],
+        [0.000,  2.10]  // Rounded Airbus nose tip
+      ];
+
+      const lathePoints = rawFuselageProfile.map(p => new THREE.Vector2(p[0], p[1]));
+      const smoothFuselageCurve = new THREE.SplineCurve(lathePoints);
+      const fuselageGeo = new THREE.LatheGeometry(smoothFuselageCurve.getPoints(80), 48);
+      // Rotate so Lathe +Y becomes Aircraft +Z (Forward Nose)
+      fuselageGeo.rotateX(Math.PI / 2);
+
+      // Authentic A321 upward-swept rear tailcone underside & Airbus nose profile
+      const fPos = fuselageGeo.attributes.position;
+      for (let i = 0; i < fPos.count; i++) {
+        const z = fPos.getZ(i);
+        let y = fPos.getY(i);
+        y *= 1.05; // Slight vertical double-bubble ovalization
+
+        // Upward sweep of rear tailcone toward the APU exhaust (z < -0.95)
+        if (z < -0.95) {
+          const t = (-0.95 - z) / 1.30;
+          y += Math.pow(t, 1.65) * 0.115;
+        }
+        // Characteristic Airbus nose radome downward centerline droop (z > 1.38)
+        if (z > 1.38) {
+          const tn = (z - 1.38) / 0.72;
+          y -= Math.pow(tn, 1.45) * 0.048;
+        }
+        fPos.setY(i, y);
+      }
+      fuselageGeo.computeVertexNormals();
+
+      const fuselageMesh = new THREE.Mesh(fuselageGeo, matFuselage);
+      visualPlane.add(fuselageMesh);
+
+      // Aerodynamic Belly Wing-to-Body Fairing (Painted S7 Emerald Green)
+      const bellyFairingGeo = new THREE.SphereGeometry(0.252, 28, 20);
+      bellyFairingGeo.scale(1.08, 0.56, 2.85);
+      const bellyFairing = new THREE.Mesh(bellyFairingGeo, matS7Emerald);
+      bellyFairing.position.set(0, -0.11, -0.05);
+      visualPlane.add(bellyFairing);
+
+      // APU Exhaust Chrome Nozzle at Tail Tip (-Z = -2.25)
+      const apuNozzle = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.020, 0.030, 0.10, 16),
+        matSilverLeadingEdge
+      );
+      apuNozzle.rotation.x = Math.PI / 2;
+      apuNozzle.position.set(0, 0.11, -2.25);
+      visualPlane.add(apuNozzle);
+
+      // Rooftop White VHF Blade Antennas (2 antennas visible on VQ-BGU roof)
+      [0.95, -0.35].forEach((antZ) => {
+        const antGeo = new THREE.BoxGeometry(0.012, 0.075, 0.09);
+        // Shear top backward
+        const aPos = antGeo.attributes.position;
+        for (let i = 0; i < aPos.count; i++) {
+          if (aPos.getY(i) > 0) aPos.setZ(i, aPos.getZ(i) - 0.035);
+        }
+        antGeo.computeVertexNormals();
+        const ant = new THREE.Mesh(antGeo, matSilverLeadingEdge);
+        ant.position.set(0, 0.27, antZ);
+        visualPlane.add(ant);
+      });
+
+      // =======================================================================
+      // 2. SWEPT-BACK AIRBUS A321 WINGS, 4 FLAP TRACK FAIRINGS & LIME SHARKLETS
+      // =======================================================================
+      [-1, 1].forEach((side) => {
+        // Wing sweeps strictly BACKWARD:
+        // Root at x = ±0.21: Leading Edge z = +0.26, Trailing Edge z = -0.22
+        // Tip  at x = ±1.78: Leading Edge z = -0.44, Trailing Edge z = -0.60
+        const wingMeshGroup = createSweptAirfoilMesh(
+          side * 0.21,  // rootX
+          side * 1.78,  // tipX
+          0.26,         // rootLEZ (forward)
+          -0.22,        // rootTEZ (aft)
+          -0.44,        // tipLEZ (swept BACKWARD!)
+          -0.60,        // tipTEZ (swept BACKWARD!)
+          -0.06,        // rootY
+          0.08,         // tipY (+5° upward dihedral)
+          0.065,        // rootThickness
+          0.024,        // tipThickness
+          matAirbusWingGrey,
+          matSilverLeadingEdge
+        );
+        visualPlane.add(wingMeshGroup);
+
+        // 4 Underwing Flap Track Fairings (Canoes protruding behind trailing edge, as on VQ-BGU photo)
+        [0.48, 0.78, 1.08, 1.38].forEach((spanDist, idx) => {
+          const s = (spanDist - 0.21) / (1.78 - 0.21);
+          const teZ = -0.22 + (-0.60 - (-0.22)) * s;
+          const yPos = -0.06 + (0.08 - (-0.06)) * s - 0.026;
+          const canoeLen = 0.24 - idx * 0.032;
+
+          const canoeGeo = new THREE.ConeGeometry(0.018, canoeLen, 12);
+          // Rotate cone so sharp tip points BACKWARD (-Z)
+          canoeGeo.rotateX(-Math.PI / 2);
+          canoeGeo.scale(0.85, 1.15, 1.0);
+          const canoe = new THREE.Mesh(canoeGeo, matAirbusWingGrey);
+          canoe.position.set(side * spanDist, yPos, teZ - canoeLen * 0.28);
+          visualPlane.add(canoe);
+        });
+
+        // Tall Swept-Back S7 Lime-Green SHARKLET (Blended Winglet at wingtip x = ±1.78)
+        // Base matches wingtip (z from -0.44 to -0.60), sweeps UPWARD (+Y) and BACKWARD (-Z)
+        const sharkletGroup = new THREE.Group();
+        const shSegments = 10;
+        const shPositions = [];
+        const shIndices = [];
+
+        for (let i = 0; i <= shSegments; i++) {
+          const t = i / shSegments;
+          // Smoothly curve outward from wingtip and upward to +0.30 height
+          const sx = side * (1.76 + Math.pow(t, 0.85) * 0.08);
+          const sy = 0.075 + t * 0.24;
+          // Sweep strictly BACKWARD (-Z) as height increases
+          const leZ = -0.44 - Math.pow(t, 1.15) * 0.17;
+          const teZ = -0.60 - Math.pow(t, 1.10) * 0.11;
+          const halfThick = 0.010 * (1 - t * 0.55);
+
+          // 4 vertices per cross-section: LE, Outer Mid, TE, Inner Mid
+          shPositions.push(sx, sy, leZ);
+          shPositions.push(sx + side * halfThick, sy, (leZ + teZ) * 0.5);
+          shPositions.push(sx, sy, teZ);
+          shPositions.push(sx - side * halfThick, sy, (leZ + teZ) * 0.5);
+        }
+
+        for (let i = 0; i < shSegments; i++) {
+          const base = i * 4;
+          const next = (i + 1) * 4;
+          for (let k = 0; k < 4; k++) {
+            const kNext = (k + 1) % 4;
+            shIndices.push(base + k, next + k, next + kNext);
+            shIndices.push(base + k, next + kNext, base + kNext);
+          }
+        }
+
+        const sharkletGeo = new THREE.BufferGeometry();
+        sharkletGeo.setAttribute('position', new THREE.Float32BufferAttribute(shPositions, 3));
+        sharkletGeo.setIndex(shIndices);
+        sharkletGeo.computeVertexNormals();
+
+        const sharkletMesh = new THREE.Mesh(sharkletGeo, matS7Lime);
+        sharkletGroup.add(sharkletMesh);
+        visualPlane.add(sharkletGroup);
+
+        // Wingtip Navigation Light (Port +X = Red, Starboard -X = Green)
+        const navLight = new THREE.Mesh(
+          new THREE.SphereGeometry(0.026, 10, 10),
+          new THREE.MeshBasicMaterial({ color: side > 0 ? 0xff2a2a : 0x22ff55 })
+        );
+        navLight.position.set(side * 1.79, 0.085, -0.45);
+        visualPlane.add(navLight);
+      });
+
+      // =======================================================================
+      // 3. UNDERWING TURBOFAN ENGINES (Two-Tone S7 Livery + White Diagonal Stripe)
+      // =======================================================================
+      function createEngineCowlingTexture() {
+        const c = document.createElement('canvas');
+        c.width = 512;
+        c.height = 256;
+        const ctx = c.getContext('2d');
+
+        // Front half bright S7 Lime (#A4E200), rear half S7 Emerald (#2D9A27) with diagonal white stripe
+        ctx.fillStyle = '#a4e200';
+        ctx.fillRect(0, 0, 512, 256);
+
+        ctx.fillStyle = '#2d9a27';
+        ctx.beginPath();
+        ctx.moveTo(0, 115);
+        ctx.lineTo(512, 145);
+        ctx.lineTo(512, 256);
+        ctx.lineTo(0, 256);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.moveTo(0, 115);
+        ctx.lineTo(512, 145);
+        ctx.stroke();
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      const matEngineCowling = new THREE.MeshStandardMaterial({
+        map: createEngineCowlingTexture(),
+        roughness: 0.22,
+        metalness: 0.18
+      });
+
+      [-1, 1].forEach((side) => {
+        const engGroup = new THREE.Group();
+        // Positioned ahead and below the wing at x = ±0.58, y = -0.17, z = +0.16
+        engGroup.position.set(side * 0.58, -0.17, 0.16);
+
+        // Swept Aerodynamic Engine Pylon Strut connecting cowling to wing underside
+        const pylonGeo = new THREE.BoxGeometry(0.028, 0.11, 0.34);
+        const pPos = pylonGeo.attributes.position;
+        for (let i = 0; i < pPos.count; i++) {
+          if (pPos.getY(i) > 0) pPos.setZ(i, pPos.getZ(i) - 0.08);
+        }
+        pylonGeo.computeVertexNormals();
+        const pylon = new THREE.Mesh(pylonGeo, matAirbusWingGrey);
+        pylon.position.set(0, 0.11, -0.06);
+        engGroup.add(pylon);
+
+        // Smooth Curved Turbofan Nacelle Barrel (Lathe around Z axis)
+        // V = 1 is Front Intake (+Z = +0.24), V = 0 is Rear Exhaust (-Z = -0.24)
+        const nacellePts = [
+          new THREE.Vector2(0.098, -0.24),
+          new THREE.Vector2(0.128, -0.12),
+          new THREE.Vector2(0.142,  0.02),
+          new THREE.Vector2(0.138,  0.16),
+          new THREE.Vector2(0.122,  0.24),
+          new THREE.Vector2(0.106,  0.23),
+          new THREE.Vector2(0.102,  0.10)
+        ];
+        const nacelleCurve = new THREE.SplineCurve(nacellePts);
+        const nacelleGeo = new THREE.LatheGeometry(nacelleCurve.getPoints(28), 32);
+        nacelleGeo.rotateX(Math.PI / 2);
+        const nacelleMesh = new THREE.Mesh(nacelleGeo, matEngineCowling);
+        engGroup.add(nacelleMesh);
+
+        // Bright Chrome Intake Lip Ring at Front (+Z = +0.24)
+        const intakeLip = new THREE.Mesh(
+          new THREE.TorusGeometry(0.118, 0.015, 14, 28),
+          matSilverLeadingEdge
+        );
+        intakeLip.position.z = 0.238;
+        engGroup.add(intakeLip);
+
+        // Dark Recessed Fan Blades Disk & Central Spinner Cone
+        const fanDisk = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.108, 0.108, 0.03, 24),
+          matFanDark
+        );
+        fanDisk.rotation.x = Math.PI / 2;
+        fanDisk.position.z = 0.16;
+        engGroup.add(fanDisk);
+
+        const spinner = new THREE.Mesh(
+          new THREE.ConeGeometry(0.034, 0.085, 16),
+          matSilverLeadingEdge
+        );
+        spinner.rotation.x = Math.PI / 2;
+        spinner.position.z = 0.19;
+        engGroup.add(spinner);
+
+        // Rear Metallic Primary Exhaust Cone (-Z)
+        const exhaustNozzle = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.068, 0.096, 0.14, 20),
+          matSilverLeadingEdge
+        );
+        exhaustNozzle.rotation.x = Math.PI / 2;
+        exhaustNozzle.position.z = -0.28;
+        engGroup.add(exhaustNozzle);
+
+        visualPlane.add(engGroup);
+      });
+
+      // =======================================================================
+      // 4. SWEPT-BACK VERTICAL TAIL FIN (WITH S7 LOGO) & HORIZONTAL TAILPLANES
+      // =======================================================================
+      // Vertical Tail Fin: Sweeps strictly BACKWARD (-Z) as it rises (+Y)
+      // Root chord at y = 0.16: Leading Edge z = -1.16, Trailing Edge z = -1.94
+      // Tip  chord at y = 0.96: Leading Edge z = -1.84, Trailing Edge z = -2.14
+      const vFinGroup = new THREE.Group();
+      const vFinShape = new THREE.Shape();
+      // Shape 2D coordinates: X_shape = +Z (Forward is right, Aft is left), Y_shape = +Y (Upward)
+      // Wait: to map UV 0..1 cleanly to our 512x512 S7 tail texture (where X=0 is Front LE, X=1 is Rear TE, Y=1 is Top, Y=0 is Bottom):
+      // Let's build a custom BufferGeometry for the Vertical Stabilizer with exact UVs!
+      const vRows = 14;
+      const vCols = 12;
+      const vPositions = [];
+      const vUvs = [];
+      const vIndices = [];
+
+      // Left & Right skin panels joined at Leading Edge and Trailing Edge
+      [-1, 1].forEach((sideSign, sideIdx) => {
+        for (let r = 0; r <= vRows; r++) {
+          const v = r / vRows; // 0 = bottom root, 1 = top tip
+          const y = 0.15 + v * 0.80;
+
+          // Curved dorsal fillet near bottom leading edge (v < 0.22)
+          const filletForward = v < 0.22 ? Math.pow((0.22 - v) / 0.22, 2) * 0.22 : 0;
+          const leZ = -1.24 - v * 0.62 + filletForward;
+          const teZ = -1.92 - v * 0.24;
+          const maxHalfThick = (1 - v * 0.55) * 0.026;
+
+          for (let c = 0; c <= vCols; c++) {
+            const u = c / vCols; // 0 = Leading Edge (Front), 1 = Trailing Edge (Back)
+            const z = leZ + (teZ - leZ) * u;
+            const airfoilProfile = Math.sin(u * Math.PI) * maxHalfThick;
+            const x = sideSign * airfoilProfile;
+
+            vPositions.push(x, y, z);
+            // Map U (0 front -> 1 rear) and V (0 bottom -> 1 top) to S7 Tail Fin Texture
+            vUvs.push(u, v);
+          }
+        }
+
+        const stride = vCols + 1;
+        const offset = sideIdx * (vRows + 1) * stride;
+        for (let r = 0; r < vRows; r++) {
+          for (let c = 0; c < vCols; c++) {
+            const a = offset + r * stride + c;
+            const b = offset + (r + 1) * stride + c;
+            const d = offset + r * stride + (c + 1);
+            const e = offset + (r + 1) * stride + (c + 1);
+
+            if (sideSign > 0) {
+              vIndices.push(a, b, d);
+              vIndices.push(b, e, d);
+            } else {
+              vIndices.push(a, d, b);
+              vIndices.push(b, d, e);
+            }
+          }
+        }
+      });
+
+      const vFinGeo = new THREE.BufferGeometry();
+      vFinGeo.setAttribute('position', new THREE.Float32BufferAttribute(vPositions, 3));
+      vFinGeo.setAttribute('uv', new THREE.Float32BufferAttribute(vUvs, 2));
+      vFinGeo.setIndex(vIndices);
+      vFinGeo.computeVertexNormals();
+
+      const matTailFin = new THREE.MeshStandardMaterial({
+        map: tailFinTex,
+        roughness: 0.22,
+        metalness: 0.14
+      });
+      vFinGroup.add(new THREE.Mesh(vFinGeo, matTailFin));
+      visualPlane.add(vFinGroup);
+
+      // Swept-Back Horizontal Stabilizers (Tailplanes at rear z = -1.68 to -2.08)
+      [-1, 1].forEach((side) => {
+        const hStab = createSweptAirfoilMesh(
+          side * 0.08,  // rootX
+          side * 0.68,  // tipX
+          -1.66,        // rootLEZ
+          -1.94,        // rootTEZ
+          -1.92,        // tipLEZ (swept BACKWARD!)
+          -2.06,        // tipTEZ (swept BACKWARD!)
+          0.12,         // rootY
+          0.16,         // tipY
+          0.028,        // rootThickness
+          0.012,        // tipThickness
+          matS7Emerald,
+          matSilverLeadingEdge
+        );
+        visualPlane.add(hStab);
+      });
+
+      // =======================================================================
+      // 5. RETRACTABLE LANDING GEAR (EXTENDS ON TAKEOFF / LANDING, RETRACTS IN CRUISE)
+      // =======================================================================
+      const landingGearGroup = new THREE.Group();
+
+      // Nose Gear (at z = +1.42)
+      const noseStrut = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.012, 0.20, 10),
+        matSilverLeadingEdge
+      );
+      noseStrut.position.set(0, -0.24, 1.42);
+      landingGearGroup.add(noseStrut);
+
+      [-0.022, 0.022].forEach((wx) => {
+        const wheel = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.032, 0.032, 0.018, 14),
+          matTireBlack
+        );
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(wx, -0.34, 1.42);
+        landingGearGroup.add(wheel);
+      });
+
+      // Main Landing Gear Bogies under Wings (at x = ±0.32, z = -0.08)
+      [-1, 1].forEach((side) => {
+        const mainStrut = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.016, 0.016, 0.24, 10),
+          matSilverLeadingEdge
+        );
+        mainStrut.position.set(side * 0.32, -0.22, -0.08);
+        landingGearGroup.add(mainStrut);
+
+        [-0.032, 0.032].forEach((wx) => {
+          const wheel = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.048, 0.048, 0.026, 16),
+            matTireBlack
+          );
+          wheel.rotation.z = Math.PI / 2;
+          wheel.position.set(side * 0.32 + wx, -0.34, -0.08);
+          landingGearGroup.add(wheel);
+        });
+      });
+
+      visualPlane.add(landingGearGroup);
+
+      // =======================================================================
+      // 6. ANTI-COLLISION BEACON & CONDENSATION WAKE TRAILS
+      // =======================================================================
+      const strobeBeacon = new THREE.Mesh(
+        new THREE.SphereGeometry(0.034, 12, 12),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      strobeBeacon.position.set(0, 0.26, 0.25);
+      visualPlane.add(strobeBeacon);
+      animatedObjects.push({ mesh: strobeBeacon, type: 'pulse', speed: 0.08 });
+
+      const contrailMat = new THREE.MeshBasicMaterial({
+        color: 0xe6f9af,
+        transparent: true,
+        opacity: 0.36
+      });
+      const contrailMeshes = [];
+      [-0.58, 0.58].forEach((xPos) => {
+        const contrail = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.012, 0.075, 1.85, 12),
+          contrailMat
+        );
+        contrail.rotation.x = Math.PI / 2;
+        contrail.position.set(xPos, -0.17, -1.05);
+        visualPlane.add(contrail);
+        contrailMeshes.push(contrail);
+      });
+
+      // Invisible Hit-Sphere for Easy Mouse Hover
+      const hitSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(2.8, 16, 16),
+        new THREE.MeshBasicMaterial({ visible: false })
+      );
+      planeRoot.add(hitSphere);
+
+      return { planeRoot, visualPlane, hitSphere, contrailMat, contrailMeshes, landingGearGroup };
+    }
+
+    const {
+      planeRoot: flightMarkerGroup,
+      visualPlane: aircraftVisualMesh,
+      hitSphere: planeHitSphere,
+      contrailMat: aircraftContrailMat,
+      landingGearGroup: aircraftLandingGear
+    } = buildS7AirbusA321();
+    globeGroup.add(flightMarkerGroup);
+
+    // Floating Hover Tooltip with Official S7 Airlines Logo SVG URL & Flight Number S7 5723
+    const flightTooltipEl = document.createElement('div');
+    flightTooltipEl.id = 'flight-tooltip';
+    flightTooltipEl.className = 'fixed pointer-events-none z-40 transition-all duration-200 opacity-0 scale-95';
+    flightTooltipEl.style.transform = 'translate(-50%, -132%)';
+    flightTooltipEl.innerHTML = `
+      <div class="flex flex-col items-center">
+        <div class="px-3.5 py-2 bg-[#06020d]/95 backdrop-blur-md border border-[#9d4edd] rounded shadow-[0_0_25px_rgba(151,215,0,0.45),0_0_18px_rgba(157,78,221,0.85)] flex items-center gap-3">
+          <!-- Official S7 Airlines Brand Logo SVG -->
+          <div class="h-8 px-1.5 rounded bg-white/5 border border-[#97d700]/40 flex items-center justify-center shrink-0">
+            <img
+              src="https://portal.s7cdn.online/S7PCabinService/media/by-path/raw/images/pages/brand/main-logo.svg"
+              alt="S7 Airlines"
+              class="h-5 w-auto object-contain block"
+              onerror="if(!this.dataset.localTried){this.dataset.localTried='1';this.src='./main-logo.svg';}else{this.style.display='none';this.nextElementSibling.style.display='flex';}"
+            />
+            <div style="display:none" class="w-6 h-6 rounded-full bg-[#97d700] items-center justify-center font-sans font-black text-[11px] text-white">
+              S7
+            </div>
+          </div>
+          <div class="h-6 w-[1px] bg-[#5a189a]/80"></div>
+          <div class="flex flex-col leading-tight pr-0.5">
+            <span class="font-mono text-[9px] tracking-[0.18em] text-[#97d700] font-bold uppercase">AIRBUS A321</span>
+            <span class="font-mono text-xs sm:text-sm font-bold tracking-[0.16em] text-white whitespace-nowrap">
+              S7 5723
+            </span>
+          </div>
+        </div>
+        <div class="w-[1.5px] h-3.5 bg-gradient-to-b from-[#97d700] to-[#c77dff]"></div>
+        <div class="w-2 h-2 rounded-full border border-white bg-[#97d700] shadow-[0_0_8px_#97d700]"></div>
+      </div>
+    `;
+    labelsContainer.appendChild(flightTooltipEl);
+
+    let flightCycleProgress = 0;
+    let isPlaneHovered = false;
+    const lastPointerPos = { x: -9999, y: -9999 };
+
+    /*************************************************************************
+     * 9. CITIES CAMERA FLIGHT & SCROLL-WORLD CONTINUOUS ROUTE SCRUBBER
+     *************************************************************************/
+    const targetCamPos = camera.position.clone();
+    const targetLookAt = new THREE.Vector3(0, 0, 0);
+    const currentLookAt = new THREE.Vector3(0, 0, 0);
+
+    function updateCityUI(city) {
+      document.getElementById('card-badge').textContent = city.orderBadge;
+      document.getElementById('card-code').textContent = city.countryCode;
+      document.getElementById('card-coords').textContent = city.coordsText;
+      document.getElementById('card-title').textContent = city.name;
+      document.getElementById('card-status').textContent = city.statusText;
+
+      // Highlight active city card in right panel
+      document.querySelectorAll('.city-nav-card').forEach(el => {
+        el.classList.remove('border-[#c77dff]', 'bg-[#240b4d]/90', 'shadow-[0_0_20px_rgba(199,125,255,0.45)]');
+      });
+      const activeNav = document.getElementById(`city-nav-${city.id}`);
+      if (activeNav) {
+        activeNav.classList.add('border-[#c77dff]', 'bg-[#240b4d]/90', 'shadow-[0_0_20px_rgba(199,125,255,0.45)]');
+      }
+    }
+
+    function flyToCity(cityId) {
+      const city = CITIES_MAP[cityId];
+      if (!city) return;
+
+      currentCityIndex = CITIES_LIST.findIndex(c => c.id === cityId);
+      updateCityUI(city);
+      resetIdleRotationTimer();
+
+      const surfaceCenter = latLonToVector3(city.lat, city.lon, GLOBE_RADIUS);
+      const normal = surfaceCenter.clone().normalize();
+      const camOffset = normal.clone().multiplyScalar(city.camDist);
+
+      // Slight perspective tilt so both 3D landmarks around the city are framed beautifully
+      const worldUp = new THREE.Vector3(0, 1, 0);
+      const tangentEast = new THREE.Vector3().crossVectors(worldUp, normal).normalize();
+      const tangentSouth = new THREE.Vector3().crossVectors(tangentEast, normal).normalize();
+
+      camOffset.addScaledVector(tangentSouth, 4.5);
+      camOffset.addScaledVector(tangentEast, 1.8);
+
+      targetCamPos.copy(camOffset);
+      targetLookAt.copy(surfaceCenter);
+      isCameraFlying = true;
+
+      // Sync Scroll-World scrubber
+      document.getElementById('route-scrubber').value = cityId === 'novosibirsk' ? 0 : 1000;
+      document.getElementById('scrub-percentage').textContent = city.name;
+    }
+
+    function stepCity(delta) {
+      currentCityIndex = (currentCityIndex + delta + CITIES_LIST.length) % CITIES_LIST.length;
+      flyToCity(CITIES_LIST[currentCityIndex].id);
+    }
+
+    function scrubToMidFlight() {
+      resetIdleRotationTimer();
+      document.getElementById('route-scrubber').value = 500;
+      onScrubberInput(500);
+    }
+
+    function onScrubberInput(val) {
+      const t = parseFloat(val) / 1000;
+      resetIdleRotationTimer();
+      isCameraFlying = true;
+
+      const focusPoint = flightCurve.getPointAt(t);
+      const normal = focusPoint.clone().normalize();
+
+      const midArcFactor = Math.sin(t * Math.PI);
+      const camAltitude = 112.5 + midArcFactor * 38;
+
+      targetCamPos.copy(normal.multiplyScalar(camAltitude));
+      targetLookAt.copy(focusPoint);
+
+      if (t < 0.5) {
+        currentCityIndex = 0;
+        updateCityUI(CITIES_LIST[0]);
+      } else {
+        currentCityIndex = 1;
+        updateCityUI(CITIES_LIST[1]);
+      }
+
+      document.getElementById('scrub-percentage').textContent = `МАРШРУТ: ${Math.round(t * 100)}%`;
+    }
+
+    function resetGlobeView() {
+      resetIdleRotationTimer();
+      targetCamPos.copy(latLonToVector3(46, 98, 228));
+      targetLookAt.set(0, 0, 0);
+      isCameraFlying = true;
+    }
+
+    /*************************************************************************
+     * 10. RAYCASTING (CLICKING A 3D MODEL OR HOVERING THE S7 A321 AIRCRAFT)
+     *************************************************************************/
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let pointerDownPos = { x: 0, y: 0 };
+
+    renderer.domElement.addEventListener('pointermove', (e) => {
+      lastPointerPos.x = e.clientX;
+      lastPointerPos.y = e.clientY;
+
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const planeHit = raycaster.intersectObject(planeHitSphere, true);
+      isPlaneHovered = planeHit.length > 0;
+      container.style.cursor = isPlaneHovered ? 'pointer' : 'grab';
+    });
+
+    renderer.domElement.addEventListener('pointerdown', (e) => {
+      pointerDownPos = { x: e.clientX, y: e.clientY };
+    });
+
+    renderer.domElement.addEventListener('pointerup', (e) => {
+      const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+      if (moveDist > 6) return;
+
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(clickableSceneryGroups, true);
+
+      if (intersects.length > 0) {
+        let hitObj = intersects[0].object;
+        while (hitObj.parent && !hitObj.userData.cityId) {
+          hitObj = hitObj.parent;
+        }
+        if (hitObj && hitObj.userData.cityId) {
+          flyToCity(hitObj.userData.cityId);
+        }
+      }
+    });
+
+    /*************************************************************************
+     * 11. ANIMATION LOOP & 2D CITY PIN PROJECTION
+     *************************************************************************/
+    const tempVec = new THREE.Vector3();
+    const camToPinVec = new THREE.Vector3();
+    const pinNormalVec = new THREE.Vector3();
+    const planeTangentVec = new THREE.Vector3();
+    const planeUpNormalVec = new THREE.Vector3();
+    const planeSideVec = new THREE.Vector3();
+    const planeOrthoUpVec = new THREE.Vector3();
+    const planeRotMatrix = new THREE.Matrix4();
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (isCameraFlying) {
+        camera.position.lerp(targetCamPos, 0.065);
+        currentLookAt.lerp(targetLookAt, 0.075);
+        controls.target.copy(currentLookAt);
+
+        if (camera.position.distanceTo(targetCamPos) < 0.25) {
+          isCameraFlying = false;
+        }
+      }
+
+      controls.update();
+
+      // Smooth Takeoff (Novosibirsk) -> Cruise -> Descent & Landing (Beijing) Animation
+      // flightCycleProgress runs 0.0 -> 1.12 (where 1.0 -> 1.12 is a smooth turnaround pause between flights)
+      const cycleSpeed = isPlaneHovered ? 0.00025 : 0.00145;
+      flightCycleProgress = (flightCycleProgress + cycleSpeed) % 1.12;
+
+      const tArc = Math.min(1.0, flightCycleProgress);
+      const isInFlight = flightCycleProgress <= 1.0;
+
+      // Smooth cubic easing for takeoff scale-up (0.00 -> 0.18) and landing scale-down (0.82 -> 1.00)
+      let scaleMultiplier = 1.0;
+      let pitchAngleRad = 0.0;
+      let contrailAlpha = 0.36;
+
+      if (!isInFlight) {
+        scaleMultiplier = 0.0001;
+        contrailAlpha = 0.0;
+      } else if (tArc < 0.18) {
+        // Takeoff & Climb out of Novosibirsk
+        const u = tArc / 0.18;
+        // Smoothstep ease-out scale growth from 0 to 1
+        scaleMultiplier = u * u * (3 - 2 * u);
+        // Nose-up takeoff climb pitch (+12 deg easing to 0 deg at top of climb)
+        pitchAngleRad = (1.0 - scaleMultiplier) * 0.22;
+        contrailAlpha = Math.max(0, (u - 0.35) * 0.55);
+      } else if (tArc > 0.82) {
+        // Descent & Landing approach into Beijing
+        const v = (1.0 - tArc) / 0.18;
+        // Smoothstep ease-in scale reduction from 1 to 0 at touchdown
+        scaleMultiplier = Math.max(0.0001, v * v * (3 - 2 * v));
+        // Gentle nose-down descent pitch (-7 deg during approach, flaring near touchdown)
+        pitchAngleRad = -Math.sin((1.0 - v) * Math.PI) * 0.13;
+        contrailAlpha = Math.max(0, (v - 0.35) * 0.55);
+      }
+
+      const finalPlaneScale = flightMarkerGroup.userData.baseScale * scaleMultiplier;
+      flightMarkerGroup.scale.set(finalPlaneScale, finalPlaneScale, finalPlaneScale);
+      flightMarkerGroup.visible = isInFlight && scaleMultiplier > 0.01;
+      aircraftContrailMat.opacity = contrailAlpha;
+
+      // Smoothly deploy landing gear during takeoff (tArc < 0.20) & landing approach (tArc > 0.80)
+      if (aircraftLandingGear) {
+        let gearDeploy = 0;
+        if (tArc < 0.20) {
+          gearDeploy = 1.0 - (tArc / 0.20);
+        } else if (tArc > 0.80) {
+          gearDeploy = (tArc - 0.80) / 0.20;
+        }
+        aircraftLandingGear.visible = gearDeploy > 0.05;
+        aircraftLandingGear.scale.y = Math.max(0.01, gearDeploy);
+      }
+
+      const arcPos = flightCurve.getPointAt(tArc);
+      flightMarkerGroup.position.copy(arcPos);
+
+      // Orient the Airbus A321: Nose (+Z) along flight tangent toward Beijing, Roof (+Y) aligned with Earth's radial normal
+      flightCurve.getTangentAt(tArc, planeTangentVec).normalize();
+      planeUpNormalVec.copy(arcPos).normalize();
+      planeSideVec.crossVectors(planeUpNormalVec, planeTangentVec).normalize();
+      planeOrthoUpVec.crossVectors(planeTangentVec, planeSideVec).normalize();
+
+      planeRotMatrix.makeBasis(planeSideVec, planeOrthoUpVec, planeTangentVec);
+      flightMarkerGroup.quaternion.setFromRotationMatrix(planeRotMatrix);
+
+      // Apply realistic takeoff climb / landing descent pitch to the inner aircraft mesh
+      aircraftVisualMesh.rotation.x = -pitchAngleRad;
+
+      // Project 3D Aircraft position to 2D Screen & check hover proximity
+      pinNormalVec.copy(arcPos).normalize();
+      camToPinVec.copy(camera.position).sub(arcPos).normalize();
+      const planeVisibleDot = pinNormalVec.dot(camToPinVec);
+
+      if (planeVisibleDot > -0.05 && scaleMultiplier > 0.22 && isInFlight) {
+        tempVec.copy(arcPos).project(camera);
+        const px = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
+        const py = (-(tempVec.y * 0.5) + 0.5) * window.innerHeight;
+
+        const screenDist = Math.hypot(lastPointerPos.x - px, lastPointerPos.y - py);
+        const showFlightCard = isPlaneHovered || screenDist < 34;
+
+        flightTooltipEl.style.left = `${px}px`;
+        flightTooltipEl.style.top = `${py}px`;
+        if (showFlightCard) {
+          flightTooltipEl.style.opacity = String(Math.min(1, scaleMultiplier * 1.25));
+          flightTooltipEl.style.transform = 'translate(-50%, -132%) scale(1)';
+        } else {
+          flightTooltipEl.style.opacity = '0';
+          flightTooltipEl.style.transform = 'translate(-50%, -122%) scale(0.95)';
+        }
+      } else {
+        flightTooltipEl.style.opacity = '0';
+        isPlaneHovered = false;
+      }
+
+      // Animate Radar & Beacons on 3D Scenery
+      const time = performance.now() * 0.003;
+      animatedObjects.forEach(item => {
+        if (item.type === 'spinY') {
+          item.mesh.rotation.y += item.speed;
+        } else if (item.type === 'pulse') {
+          const s = 1 + Math.sin(time * 2.5) * 0.25;
+          item.mesh.scale.set(s, s, s);
+        }
+      });
+
+      // Project City Pins to 2D Screen Coordinates
+      cityDomLabels.forEach(item => {
+        const worldPos = latLonToVector3(item.lat, item.lon, GLOBE_RADIUS + item.altitude);
+        pinNormalVec.copy(worldPos).normalize();
+        camToPinVec.copy(camera.position).sub(worldPos).normalize();
+
+        const dot = pinNormalVec.dot(camToPinVec);
+        if (dot > -0.05) {
+          tempVec.copy(worldPos).project(camera);
+          const x = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
+          const y = (-(tempVec.y * 0.5) + 0.5) * window.innerHeight;
+
+          item.el.style.left = `${x}px`;
+          item.el.style.top = `${y}px`;
+          item.el.style.opacity = '1';
+          item.el.style.pointerEvents = 'auto';
+        } else {
+          item.el.style.opacity = '0';
+          item.el.style.pointerEvents = 'none';
+        }
+      });
+
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    /*************************************************************************
+     * 12. PRELOADER SEQUENCE ("EIGHT TRIP" -> MORPHS INTO GIANT "8" -> PORTAL)
+     *************************************************************************/
+    function runPreloaderSequence() {
+      const percentEl = document.getElementById('preload-percent');
+      const barEl = document.getElementById('preload-bar');
+      const statusEl = document.getElementById('preload-status');
+      const letters = document.querySelectorAll('.preload-letter');
+      const eightSymbol = document.getElementById('preload-eight-symbol');
+      const telemetryBox = document.getElementById('preload-telemetry');
+      const preloader = document.getElementById('preloader');
+
+      let progress = 0;
+      const statusMessages = [
+        'ЗАГРУЗКА СПУТНИКОВОЙ КАРТЫ ЗЕМЛИ И РЕЛЬЕФА...',
+        'ГЕНЕРАЦИЯ 3D: НОВОСИБИРСК (ТЕАТР ОПЕРЫ И БАЛЕТА НОВАТ)...',
+        'ГЕНЕРАЦИЯ 3D: ПЕКИН (ЗАПРЕТНЫЙ ГОРОД • ГУГУН)...',
+        'СИНХРОНИЗАЦИЯ МАРШРУТА EIGHT TRIP ЗАВЕРШЕНА.'
+      ];
+
+      const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 5) + 3;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          triggerMorphToEight();
+        }
+
+        percentEl.textContent = `${String(progress).padStart(2, '0')}%`;
+        barEl.style.width = `${progress}%`;
+
+        const msgIdx = Math.min(
+          Math.floor((progress / 100) * statusMessages.length),
+          statusMessages.length - 1
+        );
+        statusEl.textContent = statusMessages[msgIdx];
+      }, 45);
+
+      function triggerMorphToEight() {
+        telemetryBox.style.opacity = '0';
+
+        // 1. Converge all "EIGHT TRIP" letters into the exact center
+        letters.forEach(letter => {
+          const idx = parseFloat(letter.getAttribute('data-idx') || '0');
+          const offsetPx = -idx * 42;
+          letter.style.transform = `translateX(${offsetPx}px) scaleX(0.15) scaleY(1.45)`;
+          letter.style.filter = 'blur(6px) drop-shadow(0 0 35px #c77dff)';
+          letter.style.opacity = '0';
+        });
+
+        // 2. Reveal the giant gothic "8" in the center
+        setTimeout(() => {
+          eightSymbol.classList.add('active-morph');
+        }, 320);
+
+        // 3. Hold the giant "8" for 1 second, then zoom through it into the 3D Globe
+        setTimeout(() => {
+          eightSymbol.classList.add('portal-zoom');
+          preloader.style.opacity = '0';
+          preloader.style.visibility = 'hidden';
+          resetIdleRotationTimer();
+        }, 1450);
+      }
+    }
+
+    window.onload = function () {
+      updateCityUI(CITIES_LIST[0]);
+      animate();
+      runPreloaderSequence();
+    };
+  </script>
+</body>
+</html>
