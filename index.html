@@ -6,7 +6,6 @@
   <title>EIGHT TRIP</title>
   <link rel="icon" type="image/png" href="favicon.png">
 
-
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -581,9 +580,13 @@
       1600
     );
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance'
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(1); // Cap at 1.0 for maximum 60 FPS smoothness on low-end PCs
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.18;
     container.appendChild(renderer.domElement);
@@ -642,10 +645,10 @@
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
 
-    // Deep Space Starfield
+    // Deep Space Starfield (Optimized vertex count for low-end GPUs)
     (function createStarfield() {
       const starGeo = new THREE.BufferGeometry();
-      const starCount = 2200;
+      const starCount = 900;
       const positions = new Float32Array(starCount * 3);
       const colors = new Float32Array(starCount * 3);
 
@@ -705,7 +708,7 @@
       return new THREE.CanvasTexture(c);
     }
 
-    const earthGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 96, 96);
+    const earthGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 48, 48);
     const earthMat = new THREE.MeshPhongMaterial({
       color: 0xffffff,
       map: createFallbackSatelliteCanvas(),
@@ -746,7 +749,7 @@
     );
 
     // Subtle Natural Blue Atmospheric Halo (No Purple Shadow/Tint)
-    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.016, 64, 64);
+    const atmosGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.016, 36, 36);
     const atmosMat = new THREE.MeshPhongMaterial({
       color: 0x3b82f6,
       transparent: true,
@@ -767,8 +770,8 @@
     const clickableSceneryGroups = [];
 
     function placeModelOnGlobe(modelGroup, lat, lon, cityId) {
-      // Embed slightly into the sphere radius so edges never float on the curved horizon
-      const surfacePos = latLonToVector3(lat, lon, GLOBE_RADIUS - 0.03);
+      // Embed slightly into the sphere radius so buildings sit flush on the curved terrain
+      const surfacePos = latLonToVector3(lat, lon, GLOBE_RADIUS - 0.14);
       const radialNormal = surfacePos.clone().normalize();
 
       modelGroup.position.copy(surfacePos);
@@ -783,172 +786,442 @@
     }
 
     /*************************************************************************
-     * 6. LANDMARK 3D MODELS (NOVAT IN NOVOSIBIRSK & FORBIDDEN CITY IN BEIJING)
+     * 6. ULTRA-OPTIMIZED & HIGHLY RECOGNIZABLE 3D LANDMARKS (60 FPS LOW-POLY)
      *************************************************************************/
-    // 6.1 NOVAT Opera and Ballet Theater (Novosibirsk)
+    // 6.1 NOVAT Opera and Ballet Theater (Novosibirsk — Photos 1 & 2, No Grey Base Pad)
     (function buildNovatTheater() {
       const novat = new THREE.Group();
-      const s = 0.72;
+      const s = 0.62;
       novat.scale.set(s, s, s);
 
-      const matGranite = new THREE.MeshStandardMaterial({ color: 0x3a353f, roughness: 0.8 });
-      const matTerracotta = new THREE.MeshStandardMaterial({ color: 0x9e2a2b, roughness: 0.55 });
-      const matWhiteMarble = new THREE.MeshStandardMaterial({ color: 0xf8f9fa, roughness: 0.35 });
-      const matSilverDome = new THREE.MeshStandardMaterial({
-        color: 0xd8dee9,
-        roughness: 0.25,
-        metalness: 0.78
+      // 1. Baked Silver Fish-Scale Dome + 24 Base Lucarnes + Warm Golden Rim Glow Texture
+      function createDomeBakedTexture() {
+        const c = document.createElement('canvas');
+        c.width = 512;
+        c.height = 256;
+        const ctx = c.getContext('2d');
+
+        const grad = ctx.createLinearGradient(0, 0, 0, 256);
+        grad.addColorStop(0, '#f1f5f9');
+        grad.addColorStop(0.6, '#cbd5e1');
+        grad.addColorStop(1, '#94a3b8');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 256);
+
+        // Iconic diamond fish-scale pattern
+        const rows = 20;
+        const cols = 48;
+        const rowH = 256 / rows;
+        const colW = 512 / cols;
+        ctx.strokeStyle = 'rgba(51, 65, 85, 0.55)';
+        ctx.lineWidth = 1.2;
+
+        for (let r = 0; r < rows; r++) {
+          const y = r * rowH;
+          const offset = (r % 2) * (colW * 0.5);
+          for (let col = -1; col <= cols; col++) {
+            const x = col * colW + offset;
+            ctx.fillStyle = (r + col) % 2 === 0 ? 'rgba(255,255,255,0.25)' : 'rgba(100,116,139,0.18)';
+            ctx.beginPath();
+            ctx.moveTo(x + colW * 0.5, y);
+            ctx.lineTo(x + colW, y + rowH * 0.65);
+            ctx.lineTo(x + colW * 0.5, y + rowH);
+            ctx.lineTo(x, y + rowH * 0.65);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+          }
+        }
+
+        // Baked ring of 24 triangular dormer lucarnes around the lower rim (Photo 2)
+        const lucCount = 24;
+        const lucW = 512 / lucCount;
+        for (let i = 0; i < lucCount; i++) {
+          const lx = i * lucW;
+          ctx.fillStyle = '#e2e8f0';
+          ctx.strokeStyle = '#475569';
+          ctx.beginPath();
+          ctx.moveTo(lx + lucW * 0.15, 246);
+          ctx.lineTo(lx + lucW * 0.5, 212);
+          ctx.lineTo(lx + lucW * 0.85, 246);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        // Warm golden uplight glow at base of dome (Photo 1)
+        const rimGlow = ctx.createLinearGradient(0, 195, 0, 256);
+        rimGlow.addColorStop(0, 'rgba(255, 200, 90, 0)');
+        rimGlow.addColorStop(1, 'rgba(255, 210, 100, 0.72)');
+        ctx.fillStyle = rimGlow;
+        ctx.fillRect(0, 195, 512, 61);
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      // 2. Baked Classical Beige Colonnade & Golden Illuminated Windows Texture
+      function createBakedColonnadeTexture(pillars = 16, rows = 2, warmGlow = true) {
+        const c = document.createElement('canvas');
+        c.width = 512;
+        c.height = 128;
+        const ctx = c.getContext('2d');
+
+        // Classical warm beige limestone base (#dfd6c3)
+        ctx.fillStyle = '#dfd6c3';
+        ctx.fillRect(0, 0, 512, 128);
+
+        if (warmGlow) {
+          const g = ctx.createLinearGradient(0, 12, 0, 128);
+          g.addColorStop(0, '#c8beaa');
+          g.addColorStop(0.5, '#ffcf70');
+          g.addColorStop(1, '#e09f3e');
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 14, 512, 102);
+        }
+
+        const stepX = 512 / pillars;
+        for (let i = 0; i < pillars; i++) {
+          const px = i * stepX;
+
+          // Dark/lit window bays between classical pilasters
+          for (let r = 0; r < rows; r++) {
+            const wy = 20 + r * (88 / rows);
+            const wh = (88 / rows) * 0.68;
+            ctx.fillStyle = warmGlow ? '#2b1d0e' : '#334155';
+            ctx.fillRect(px + stepX * 0.24, wy, stepX * 0.52, wh);
+            if (warmGlow) {
+              ctx.fillStyle = '#ffd97d';
+              ctx.fillRect(px + stepX * 0.28, wy + 2, stepX * 0.44, wh - 4);
+            }
+          }
+
+          // Crisp vertical cream-white classical pilaster column
+          ctx.fillStyle = '#f4efe6';
+          ctx.fillRect(px, 8, stepX * 0.22, 112);
+          ctx.fillStyle = 'rgba(90, 80, 65, 0.35)';
+          ctx.fillRect(px + stepX * 0.22, 8, 2, 112);
+        }
+
+        // Top & bottom classical stone cornice bands
+        ctx.fillStyle = '#cfc4ae';
+        ctx.fillRect(0, 0, 512, 12);
+        ctx.fillRect(0, 116, 512, 12);
+
+        const tex = new THREE.CanvasTexture(c);
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.ClampToEdgeWrapping;
+        return tex;
+      }
+
+      const domeTex = createDomeBakedTexture();
+      const rotundaTex = createBakedColonnadeTexture(24, 2, true);
+      const tambourTex = createBakedColonnadeTexture(32, 1, true);
+      const wingTex = createBakedColonnadeTexture(10, 2, true);
+      const flyTowerTex = createBakedColonnadeTexture(12, 4, false);
+
+      // Fast Lambert/Phong materials (Zero PBR shader overhead)
+      const matBeigeStone = new THREE.MeshLambertMaterial({ color: 0xe3dac9 });
+      const matBeigeColumn = new THREE.MeshLambertMaterial({ color: 0xf4efe6 });
+      const matGreyRoof = new THREE.MeshLambertMaterial({ color: 0x8d99a6 });
+      const matRotunda = new THREE.MeshLambertMaterial({ map: rotundaTex, emissive: 0x5c3d10 });
+      const matTambour = new THREE.MeshLambertMaterial({ map: tambourTex, emissive: 0x784f12 });
+      const matWing = new THREE.MeshLambertMaterial({ map: wingTex, emissive: 0x4a300c });
+      const matFlyTower = new THREE.MeshLambertMaterial({ map: flyTowerTex });
+      const matDome = new THREE.MeshPhongMaterial({
+        map: domeTex,
+        specular: 0xffffff,
+        shininess: 65
       });
-      const matWarmWindow = new THREE.MeshBasicMaterial({ color: 0xffd166 });
+      const matRedBanner = new THREE.MeshBasicMaterial({ color: 0xb91c1c });
 
-      // Compact tapered granite foundation
-      const plinth = new THREE.Mesh(
-        new THREE.CylinderGeometry(1.45, 1.25, 0.26, 24),
-        matGranite
+      // Central Rotunda Gallery, Colonnade Tambour & Iconic Silver Fish-Scale Dome (Seated directly on terrain)
+      const rotundaZ = -0.05;
+      const lowerRotunda = new THREE.Mesh(new THREE.CylinderGeometry(1.13, 1.15, 0.46, 24), matRotunda);
+      lowerRotunda.position.set(0, 0.45, rotundaZ);
+      novat.add(lowerRotunda);
+
+      const rotundaRoofRing = new THREE.Mesh(new THREE.CylinderGeometry(1.04, 1.17, 0.07, 24), matGreyRoof);
+      rotundaRoofRing.position.set(0, 0.70, rotundaZ);
+      novat.add(rotundaRoofRing);
+
+      const tambourDrum = new THREE.Mesh(new THREE.CylinderGeometry(0.89, 0.94, 0.34, 24), matTambour);
+      tambourDrum.position.set(0, 0.90, rotundaZ);
+      novat.add(tambourDrum);
+
+      const domeMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.87, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.48),
+        matDome
       );
-      plinth.position.y = 0.1;
-      novat.add(plinth);
+      domeMesh.scale.set(1, 0.88, 1);
+      domeMesh.position.set(0, 1.07, rotundaZ);
+      novat.add(domeMesh);
 
-      // Main terracotta theater hall block
-      const mainHall = new THREE.Mesh(
-        new THREE.BoxGeometry(1.75, 0.62, 2.15),
-        matTerracotta
-      );
-      mainHall.position.set(0, 0.52, -0.1);
-      novat.add(mainHall);
+      // Mesh 6: Top Lantern Cap & Spire (Single merged lathe/cylinder)
+      const domeCap = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 0.05, 14), matGreyRoof);
+      domeCap.position.set(0, 1.83, rotundaZ);
+      novat.add(domeCap);
 
-      // High stage fly-tower behind the dome
-      const stageTower = new THREE.Mesh(
-        new THREE.BoxGeometry(1.35, 0.95, 0.85),
-        matTerracotta
-      );
-      stageTower.position.set(0, 0.68, -0.72);
-      novat.add(stageTower);
+      const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.016, 0.25, 6), matBeigeColumn);
+      spire.position.set(0, 1.96, rotundaZ);
+      novat.add(spire);
 
-      // Classical front portico with white columns & pediment
-      const porticoRoof = new THREE.Mesh(
-        new THREE.BoxGeometry(1.48, 0.1, 0.55),
-        matWhiteMarble
-      );
-      porticoRoof.position.set(0, 0.82, 1.02);
-      novat.add(porticoRoof);
+      // Mesh 7 & 8: Front Vestibule Wing, Flat Grey-Blue Roof & Stepped Portico Attic
+      const frontWing = new THREE.Mesh(new THREE.BoxGeometry(1.22, 0.52, 1.18), matWing);
+      frontWing.position.set(0, 0.48, 0.56);
+      novat.add(frontWing);
 
-      for (let i = -3; i <= 3; i++) {
-        const col = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.045, 0.05, 0.58, 10),
-          matWhiteMarble
-        );
-        col.position.set(i * 0.2, 0.52, 1.22);
+      const frontWingRoof = new THREE.Mesh(new THREE.BoxGeometry(1.16, 0.06, 1.12), matGreyRoof);
+      frontWingRoof.position.set(0, 0.77, 0.56);
+      novat.add(frontWingRoof);
+
+      const porticoZ = 1.16;
+      const porticoEntablature = new THREE.Mesh(new THREE.BoxGeometry(1.46, 0.12, 0.32), matBeigeStone);
+      porticoEntablature.position.set(0, 0.76, porticoZ);
+      novat.add(porticoEntablature);
+
+      const porticoAttic = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.14, 0.24), matBeigeStone);
+      porticoAttic.position.set(0, 0.88, porticoZ - 0.02);
+      novat.add(porticoAttic);
+
+      // Low-poly 8 Front Portico Columns + Red NOVAT Banner
+      for (let i = 0; i < 8; i++) {
+        const cx = -0.63 + (i / 7) * 1.26;
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.038, 0.50, 6), matBeigeColumn);
+        col.position.set(cx, 0.47, porticoZ + 0.08);
         novat.add(col);
       }
 
-      // Circular colonnade drum under the dome
-      const drum = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.86, 0.88, 0.36, 28),
-        matWhiteMarble
-      );
-      drum.position.set(0, 0.92, 0.08);
-      novat.add(drum);
+      const redBanner = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.34, 0.02), matRedBanner);
+      redBanner.position.set(0, 0.48, porticoZ + 0.095);
+      novat.add(redBanner);
 
-      // Iconic Silver Ribbed Hemisphere Dome ("Siberian Coliseum")
-      const dome = new THREE.Mesh(
-        new THREE.SphereGeometry(0.84, 32, 20, 0, Math.PI * 2, 0, Math.PI / 2),
-        matSilverDome
-      );
-      dome.position.set(0, 1.08, 0.08);
-      novat.add(dome);
+      // Mesh 9: Single Combined Cross-Wing for Symmetrical Left & Right Side Wings
+      const crossWings = new THREE.Mesh(new THREE.BoxGeometry(2.95, 0.48, 0.76), matWing);
+      crossWings.position.set(0, 0.46, -0.52);
+      novat.add(crossWings);
 
-      // Spire & lantern atop the dome
-      const spire = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.02, 0.08, 0.35, 12),
-        matSilverDome
-      );
-      spire.position.set(0, 1.98, 0.08);
-      novat.add(spire);
+      const crossWingsRoof = new THREE.Mesh(new THREE.BoxGeometry(2.99, 0.05, 0.80), matGreyRoof);
+      crossWingsRoof.position.set(0, 0.72, -0.52);
+      novat.add(crossWingsRoof);
 
-      // Warm illuminated theater windows
-      const winStrip = new THREE.Mesh(
-        new THREE.BoxGeometry(1.78, 0.14, 1.6),
-        matWarmWindow
-      );
-      winStrip.position.set(0, 0.52, -0.05);
-      novat.add(winStrip);
+      // Mesh 10: High Rear Stage Fly-Tower ("Сценическая коробка" behind the dome)
+      const flyTower = new THREE.Mesh(new THREE.BoxGeometry(1.42, 1.18, 0.68), matFlyTower);
+      flyTower.position.set(0, 0.81, -0.92);
+      novat.add(flyTower);
+
+      const flyTowerRoof = new THREE.Mesh(new THREE.BoxGeometry(1.46, 0.06, 0.72), matGreyRoof);
+      flyTowerRoof.position.set(0, 1.43, -0.92);
+      novat.add(flyTowerRoof);
 
       placeModelOnGlobe(novat, CITIES_MAP.novosibirsk.lat, CITIES_MAP.novosibirsk.lon, 'novosibirsk');
     })();
 
-    // 6.2 The Forbidden City / Hall of Supreme Harmony (Beijing)
+    // 6.2 The Forbidden City / Palace Museum Gugong (Beijing — Photos 3 & 4, No Grey Base Pad)
     (function buildForbiddenCity() {
       const gugong = new THREE.Group();
-      const s = 0.74;
+      const s = 0.60;
       gugong.scale.set(s, s, s);
 
-      const matMarbleTerrace = new THREE.MeshStandardMaterial({ color: 0xf1faee, roughness: 0.35 });
-      const matImperialRed = new THREE.MeshStandardMaterial({ color: 0x9b1b1b, roughness: 0.45 });
-      const matGoldenRoof = new THREE.MeshStandardMaterial({
-        color: 0xf4a261,
-        roughness: 0.28,
-        metalness: 0.55,
-        emissive: 0x5c3806,
-        emissiveIntensity: 0.18
+      // 1. Baked Golden Glazed Tile Roof Texture
+      function createGoldenRoofTexture() {
+        const c = document.createElement('canvas');
+        c.width = 256;
+        c.height = 128;
+        const ctx = c.getContext('2d');
+
+        const grad = ctx.createLinearGradient(0, 0, 0, 128);
+        grad.addColorStop(0, '#f59e0b');
+        grad.addColorStop(0.55, '#d97706');
+        grad.addColorStop(1, '#b45309');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 256, 128);
+
+        for (let x = 0; x < 256; x += 4) {
+          ctx.fillStyle = x % 8 === 0 ? 'rgba(255, 235, 150, 0.4)' : 'rgba(120, 50, 5, 0.35)';
+          ctx.fillRect(x, 0, 2, 128);
+        }
+        return new THREE.CanvasTexture(c);
+      }
+
+      // 2. Baked Front Fortress Wall + Central Red Bastion + 3 Dark Portals + White Stone Plaque Texture
+      function createFrontFortressBastionTexture() {
+        const c = document.createElement('canvas');
+        c.width = 512;
+        c.height = 128;
+        const ctx = c.getContext('2d');
+
+        // Weathered dark grey-brown fortress brick on left & right flanks (#6e6a66)
+        ctx.fillStyle = '#6e6a66';
+        ctx.fillRect(0, 0, 512, 128);
+        ctx.fillStyle = 'rgba(35,33,30,0.35)';
+        for (let y = 0; y < 128; y += 8) {
+          ctx.fillRect(0, y, 512, 2);
+        }
+
+        // Central bright crimson gatehouse bastion (Photos 3 & 4)
+        ctx.fillStyle = '#dc2626';
+        ctx.fillRect(156, 10, 200, 118);
+
+        // White marble top balustrade band
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(154, 0, 204, 14);
+
+        // White stone museum plaque ("故宫博物院") above center doorway
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(228, 34, 56, 18);
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(234, 41, 44, 4);
+
+        // 3 dark rectangular entrance portals at the base of the red bastion
+        [190, 244, 298].forEach((px) => {
+          ctx.fillStyle = '#140c0c';
+          ctx.fillRect(px, 76, 24, 52);
+        });
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      // 3. Baked Imperial Palace Facade Texture (Crimson Columns + Lattice Windows + Turquoise Danqing Frieze)
+      function createPalaceWallTexture() {
+        const c = document.createElement('canvas');
+        c.width = 256;
+        c.height = 128;
+        const ctx = c.getContext('2d');
+
+        // Crimson base
+        ctx.fillStyle = '#991b1b';
+        ctx.fillRect(0, 0, 256, 128);
+
+        // Top turquoise-blue & green painted Danqing architrave beam (Photos 3 & 4)
+        const danqing = ctx.createLinearGradient(0, 0, 0, 34);
+        danqing.addColorStop(0, '#0f766e');
+        danqing.addColorStop(0.5, '#0284c7');
+        danqing.addColorStop(1, '#15803d');
+        ctx.fillStyle = danqing;
+        ctx.fillRect(0, 0, 256, 34);
+
+        // Gold accents on Danqing beam
+        ctx.fillStyle = '#fbbf24';
+        for (let x = 8; x < 256; x += 24) {
+          ctx.fillRect(x, 8, 10, 16);
+        }
+
+        // Red columns & beige lattice windows
+        for (let x = 10; x < 246; x += 32) {
+          ctx.fillStyle = '#e5d5b5';
+          ctx.fillRect(x + 6, 42, 20, 56);
+          ctx.fillStyle = '#7f1d1d';
+          ctx.fillRect(x + 8, 46, 16, 48);
+          ctx.fillStyle = '#ef4444';
+          ctx.fillRect(x, 34, 6, 94);
+        }
+
+        // White marble terrace balustrade strip at bottom
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(0, 112, 256, 16);
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      const goldenRoofTex = createGoldenRoofTexture();
+      const bastionTex = createFrontFortressBastionTexture();
+      const palaceWallTex = createPalaceWallTexture();
+
+      const matBastion = new THREE.MeshLambertMaterial({ map: bastionTex });
+      const matPalaceWall = new THREE.MeshLambertMaterial({ map: palaceWallTex });
+      const matWhiteMarble = new THREE.MeshLambertMaterial({ color: 0xf8fafc });
+      const matGoldenRoof = new THREE.MeshPhongMaterial({
+        map: goldenRoofTex,
+        specular: 0xffd166,
+        shininess: 48
       });
-      const matJadeTrim = new THREE.MeshStandardMaterial({ color: 0x2a9d8f, roughness: 0.4 });
+      const matBluePlaque = new THREE.MeshBasicMaterial({ color: 0x1d4ed8 });
+      const matCypressGreen = new THREE.MeshLambertMaterial({ color: 0x1e4620 });
 
-      // Compact 3-tier white marble imperial terrace (Xumi base)
-      const tier1 = new THREE.Mesh(new THREE.BoxGeometry(2.1, 0.22, 1.65), matMarbleTerrace);
-      tier1.position.y = 0.11;
-      gugong.add(tier1);
+      // Fast Low-Poly Helper for Double-Eave Imperial Hall (Only 3 meshes per hall!)
+      function createFastImperialHall(w, d, h, hasBluePlaque = false) {
+        const grp = new THREE.Group();
 
-      const tier2 = new THREE.Mesh(new THREE.BoxGeometry(1.82, 0.18, 1.38), matMarbleTerrace);
-      tier2.position.y = 0.31;
-      gugong.add(tier2);
+        // 1. Hall body with baked crimson columns, lattice windows & Danqing frieze
+        const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), matPalaceWall);
+        body.position.y = h * 0.5;
+        grp.add(body);
 
-      const tier3 = new THREE.Mesh(new THREE.BoxGeometry(1.56, 0.16, 1.14), matMarbleTerrace);
-      tier3.position.y = 0.48;
-      gugong.add(tier3);
+        // 2. Lower & Upper Golden Hipped Roofs (4-sided cones)
+        const lowerRoof = new THREE.Mesh(new THREE.ConeGeometry(1.0, h * 0.48, 4), matGoldenRoof);
+        lowerRoof.rotation.y = Math.PI / 4;
+        lowerRoof.scale.set(w * 0.88, 1, d * 0.92);
+        lowerRoof.position.y = h * 0.95;
+        grp.add(lowerRoof);
 
-      // Imperial crimson palace hall (Hall of Supreme Harmony)
-      const crimsonHall = new THREE.Mesh(
-        new THREE.BoxGeometry(1.32, 0.48, 0.86),
-        matImperialRed
-      );
-      crimsonHall.position.y = 0.78;
-      gugong.add(crimsonHall);
+        const upperRoof = new THREE.Mesh(new THREE.ConeGeometry(1.0, h * 0.65, 4), matGoldenRoof);
+        upperRoof.rotation.y = Math.PI / 4;
+        upperRoof.scale.set(w * 0.76, 1, d * 0.78);
+        upperRoof.position.y = h * 1.32;
+        grp.add(upperRoof);
 
-      // Jade & gold decorative frieze beam
-      const frieze = new THREE.Mesh(
-        new THREE.BoxGeometry(1.36, 0.08, 0.9),
-        matJadeTrim
-      );
-      frieze.position.y = 0.99;
-      gugong.add(frieze);
+        // Golden roof top ridge bar
+        const ridge = new THREE.Mesh(new THREE.BoxGeometry(w * 0.52, h * 0.14, 0.05), matGoldenRoof);
+        ridge.position.y = h * 1.56;
+        grp.add(ridge);
 
-      // Lower golden hipped roof eave
-      const lowerRoof = new THREE.Mesh(
-        new THREE.ConeGeometry(1.18, 0.28, 4),
-        matGoldenRoof
-      );
-      lowerRoof.rotation.y = Math.PI / 4;
-      lowerRoof.scale.set(1.22, 1, 0.88);
-      lowerRoof.position.y = 1.15;
-      gugong.add(lowerRoof);
+        if (hasBluePlaque) {
+          const plaque = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.10, 0.02), matBluePlaque);
+          plaque.position.set(0, h * 1.15, d * 0.45);
+          grp.add(plaque);
+        }
 
-      // Upper golden imperial roof eave with ridge
-      const upperRoof = new THREE.Mesh(
-        new THREE.ConeGeometry(0.96, 0.34, 4),
-        matGoldenRoof
-      );
-      upperRoof.rotation.y = Math.PI / 4;
-      upperRoof.scale.set(1.22, 1, 0.85);
-      upperRoof.position.y = 1.38;
-      gugong.add(upperRoof);
+        return grp;
+      }
 
-      const roofRidge = new THREE.Mesh(
-        new THREE.BoxGeometry(0.82, 0.07, 0.08),
-        matGoldenRoof
-      );
-      roofRidge.position.y = 1.54;
-      gugong.add(roofRidge);
+      // Foreground Grey-Brick Fortress Wall + Central Crimson Gate Bastion (Seated directly on terrain)
+      const gateZ = 0.92;
+      const frontFortressWall = new THREE.Mesh(new THREE.BoxGeometry(2.65, 0.42, 0.34), matBastion);
+      frontFortressWall.position.set(0, 0.44, gateZ);
+      gugong.add(frontFortressWall);
+
+      // Flanking Cypress Tree Clusters at the red gate bastion entrance (2 low-poly cones)
+      [-0.38, 0.38].forEach((tx) => {
+        const cypress = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.32, 7), matCypressGreen);
+        cypress.position.set(tx, 0.38, gateZ + 0.26);
+        gugong.add(cypress);
+      });
+
+      // Foreground Double-Eave Golden Gate Pavilion (Shenwumen — Hero building in Photos 3 & 4)
+      const frontGateHall = createFastImperialHall(0.84, 0.36, 0.34, true);
+      frontGateHall.position.set(0, 0.65, gateZ);
+      gugong.add(frontGateHall);
+
+      // Middle Axis Hall (Palace of Heavenly Purity at Z = +0.16)
+      const midHall = createFastImperialHall(0.92, 0.40, 0.34, false);
+      midHall.position.set(0, 0.32, 0.16);
+      gugong.add(midHall);
+
+      // Three-Tier White Marble Imperial Terrace & Supreme Harmony Peak (Taihedian at Z = -0.58)
+      const marbleTerrace1 = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.18, 1.18), matWhiteMarble);
+      marbleTerrace1.position.set(0, 0.32, -0.58);
+      gugong.add(marbleTerrace1);
+
+      const marbleTerrace2 = new THREE.Mesh(new THREE.BoxGeometry(1.32, 0.18, 0.88), matWhiteMarble);
+      marbleTerrace2.position.set(0, 0.50, -0.58);
+      gugong.add(marbleTerrace2);
+
+      const taihedianPeak = createFastImperialHall(1.08, 0.52, 0.42, true);
+      taihedianPeak.position.set(0, 0.59, -0.58);
+      gugong.add(taihedianPeak);
+
+      // Symmetrical East & West Six Palaces ("Sea of Golden Roofs" on Left & Right flanks, 4 compound blocks total)
+      [-1, 1].forEach((side) => {
+        // Compound Block 1 (Front East/West Palaces)
+        const wingFront = createFastImperialHall(0.72, 0.55, 0.26, false);
+        wingFront.position.set(side * 1.05, 0.24, 0.20);
+        gugong.add(wingFront);
+
+        // Compound Block 2 (Rear East/West Palaces)
+        const wingRear = createFastImperialHall(0.76, 0.62, 0.30, false);
+        wingRear.position.set(side * 1.05, 0.26, -0.62);
+        gugong.add(wingRear);
+      });
 
       placeModelOnGlobe(gugong, CITIES_MAP.beijing.lat, CITIES_MAP.beijing.lon, 'beijing');
     })();
@@ -999,7 +1272,7 @@
       endFlightVec
     );
 
-    const arcTubeGeo = new THREE.TubeGeometry(flightCurve, 96, 0.14, 12, false);
+    const arcTubeGeo = new THREE.TubeGeometry(flightCurve, 48, 0.14, 8, false);
     const arcTubeMat = new THREE.MeshBasicMaterial({
       color: 0xc77dff,
       transparent: true,
@@ -1455,7 +1728,7 @@
 
       const lathePoints = rawFuselageProfile.map(p => new THREE.Vector2(p[0], p[1]));
       const smoothFuselageCurve = new THREE.SplineCurve(lathePoints);
-      const fuselageGeo = new THREE.LatheGeometry(smoothFuselageCurve.getPoints(80), 48);
+      const fuselageGeo = new THREE.LatheGeometry(smoothFuselageCurve.getPoints(44), 28);
       // Rotate so Lathe +Y becomes Aircraft +Z (Forward Nose)
       fuselageGeo.rotateX(Math.PI / 2);
 
@@ -2038,16 +2311,21 @@
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let pointerDownPos = { x: 0, y: 0 };
+    let lastRaycastTime = 0;
 
     renderer.domElement.addEventListener('pointermove', (e) => {
       lastPointerPos.x = e.clientX;
       lastPointerPos.y = e.clientY;
 
+      const now = performance.now();
+      if (now - lastRaycastTime < 60) return; // Throttle raycasting to ~16 Hz for zero lag
+      lastRaycastTime = now;
+
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
       raycaster.setFromCamera(mouse, camera);
-      const planeHit = raycaster.intersectObject(planeHitSphere, true);
+      const planeHit = raycaster.intersectObject(planeHitSphere, false);
       isPlaneHovered = planeHit.length > 0;
       container.style.cursor = isPlaneHovered ? 'pointer' : 'grab';
     });
