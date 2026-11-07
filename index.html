@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EIGHT TRIP</title>
-  <link rel="icon" type="image/png" href="favicon.png">
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -404,7 +403,7 @@
           ← ПРЕД. ГОРОД
         </button>
         <span id="card-status" class="font-mono text-[10px] text-[#c77dff] tracking-widest uppercase">
-          01 / 02
+          01 / 04 // ТЕАТР НОВАТ
         </span>
         <button onclick="stepCity(1)" class="px-3 py-1 bg-[#14052b] hover:bg-[#3c096c] border border-white/30 text-[11px] font-mono tracking-wider uppercase text-white transition rounded">
           СЛЕД. ГОРОД →
@@ -416,7 +415,7 @@
     <div class="pointer-events-auto bg-[#070210]/90 backdrop-blur-md border border-white/25 px-4 py-3 rounded shadow-[0_0_20px_rgba(0,0,0,0.85)]">
       <div class="flex items-center justify-between text-[10px] font-mono tracking-[0.2em] text-[#c77dff] uppercase mb-1.5">
         <span>SCROLL-WORLD // МАРШРУТ</span>
-        <span id="scrub-percentage" class="text-white font-bold">НОВОСИБИРСК ➔ ПЕКИН</span>
+        <span id="scrub-percentage" class="text-white font-bold">НОВОСИБИРСК ➔ САНЬЯ</span>
       </div>
       <input
         id="route-scrubber"
@@ -427,10 +426,11 @@
         class="archive-slider"
         oninput="onScrubberInput(this.value)"
       />
-      <div class="flex justify-between text-[11px] font-mono text-[#d8c6f0] mt-1.5 tracking-widest">
-        <span class="cursor-pointer hover:text-white font-bold" onclick="flyToCity('novosibirsk')">01. НОВОСИБИРСК</span>
-        <span class="cursor-pointer hover:text-white text-[#9e8bb8]" onclick="scrubToMidFlight()">ДУГА ПОЛЁТА</span>
+      <div class="flex justify-between text-[10px] font-mono text-[#d8c6f0] mt-1.5 tracking-wider">
+        <span class="cursor-pointer hover:text-white font-bold" onclick="flyToCity('novosibirsk')">01. НСК</span>
         <span class="cursor-pointer hover:text-white font-bold" onclick="flyToCity('beijing')">02. ПЕКИН</span>
+        <span class="cursor-pointer hover:text-white font-bold" onclick="flyToCity('chongqing')">03. ЧУНЦИН</span>
+        <span class="cursor-pointer hover:text-white font-bold" onclick="flyToCity('sanya')">04. САНЬЯ</span>
       </div>
     </div>
   </div>
@@ -439,10 +439,10 @@
   <!-- 4. RIGHT PANEL: ARCHIVECORE CITIES SCHEDULE (MOVED UP & CLEANED)      -->
   <!-- ===================================================================== -->
   <aside class="fixed right-4 sm:right-6 top-16 bottom-11 z-30 w-[calc(100%-2rem)] sm:w-[360px] pointer-events-none flex flex-col justify-start">
-    <div class="pointer-events-auto w-full bg-[#06010d]/90 backdrop-blur-xl border border-white/35 shadow-[0_0_45px_rgba(90,24,154,0.45)] rounded flex flex-col overflow-hidden">
+    <div class="pointer-events-auto w-full max-h-full bg-[#06010d]/90 backdrop-blur-xl border border-white/35 shadow-[0_0_45px_rgba(90,24,154,0.45)] rounded flex flex-col overflow-hidden">
       
       <!-- Panel Top Gothic Emblem Header (Single-line 'МАРШРУТ ЭКСПЕДИЦИИ') -->
-      <div class="relative px-5 py-3.5 border-b border-[#5a189a] bg-gradient-to-b from-[#1a0633]/90 to-[#06010d]">
+      <div class="relative px-5 py-3.5 border-b border-[#5a189a] bg-gradient-to-b from-[#1a0633]/90 to-[#06010d] shrink-0">
         <div class="flex items-center justify-between gap-3">
           <div class="min-w-0 flex-1">
             <div class="font-mono text-[10px] tracking-[0.3em] text-[#c77dff] uppercase">
@@ -461,13 +461,13 @@
       </div>
 
       <!-- Cities Route List (Strictly Cities Only, No Coordinates or Horizontal Scroll) -->
-      <div class="p-4 space-y-4 archive-scroll overflow-y-auto overflow-x-hidden">
+      <div class="p-4 space-y-3 archive-scroll overflow-y-auto overflow-x-hidden">
 
         <!-- ================= CITY 01: NOVOSIBIRSK ================= -->
         <div
           id="city-nav-novosibirsk"
           onclick="flyToCity('novosibirsk')"
-          class="city-nav-card cursor-pointer border border-[#5a189a]/80 hover:border-[#c77dff] bg-[#0d041c]/85 hover:bg-[#190836]/90 rounded px-4 py-3.5 transition group overflow-hidden"
+          class="city-nav-card cursor-pointer border border-[#5a189a]/80 hover:border-[#c77dff] bg-[#0d041c]/85 hover:bg-[#190836]/90 rounded px-4 py-3 transition group overflow-hidden"
         >
           <div class="route-city-item flex items-center justify-between gap-3">
             <span class="font-mono text-xs sm:text-sm text-white/85 tracking-[0.16em] shrink-0">16.12</span>
@@ -477,11 +477,11 @@
           </div>
         </div>
 
-        <!-- Connecting Flight Arc Button -->
+        <!-- Connecting Flight Arc Button 1: Novosibirsk -> Beijing -->
         <div class="flex items-center justify-center space-x-3 py-0.5">
           <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#7b2cbf] to-transparent"></div>
           <button
-            onclick="scrubToMidFlight()"
+            onclick="scrubToFlightSegment(0)"
             class="px-3.5 py-1 rounded-full border border-[#9d4edd]/60 bg-[#17062e] hover:bg-[#2d0e59] font-mono text-[10px] tracking-[0.22em] text-[#e0c3fc] uppercase transition shrink-0"
           >
             ✈ ПЕРЕЛЁТ 3 010 КМ
@@ -493,7 +493,7 @@
         <div
           id="city-nav-beijing"
           onclick="flyToCity('beijing')"
-          class="city-nav-card cursor-pointer border border-[#5a189a]/80 hover:border-[#c77dff] bg-[#0d041c]/85 hover:bg-[#190836]/90 rounded px-4 py-3.5 transition group overflow-hidden"
+          class="city-nav-card cursor-pointer border border-[#5a189a]/80 hover:border-[#c77dff] bg-[#0d041c]/85 hover:bg-[#190836]/90 rounded px-4 py-3 transition group overflow-hidden"
         >
           <div class="route-city-item flex items-center justify-between gap-3">
             <span class="font-mono text-xs sm:text-sm text-white/85 tracking-[0.16em] shrink-0">17.12</span>
@@ -503,10 +503,62 @@
           </div>
         </div>
 
+        <!-- Connecting Flight Arc Button 2: Beijing -> Chongqing -->
+        <div class="flex items-center justify-center space-x-3 py-0.5">
+          <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#7b2cbf] to-transparent"></div>
+          <button
+            onclick="scrubToFlightSegment(1)"
+            class="px-3.5 py-1 rounded-full border border-[#9d4edd]/60 bg-[#17062e] hover:bg-[#2d0e59] font-mono text-[10px] tracking-[0.22em] text-[#e0c3fc] uppercase transition shrink-0"
+          >
+            ✈ ПЕРЕЛЁТ 1 460 КМ
+          </button>
+          <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#7b2cbf] to-transparent"></div>
+        </div>
+
+        <!-- ================= CITY 03: CHONGQING ================= -->
+        <div
+          id="city-nav-chongqing"
+          onclick="flyToCity('chongqing')"
+          class="city-nav-card cursor-pointer border border-[#5a189a]/80 hover:border-[#c77dff] bg-[#0d041c]/85 hover:bg-[#190836]/90 rounded px-4 py-3 transition group overflow-hidden"
+        >
+          <div class="route-city-item flex items-center justify-between gap-3">
+            <span class="font-mono text-xs sm:text-sm text-white/85 tracking-[0.16em] shrink-0">21.12</span>
+            <span class="font-['Cormorant_Garamond'] text-xl sm:text-[23px] font-bold tracking-[0.11em] text-[#b565ff] group-hover:text-white transition uppercase text-right leading-none truncate">
+              ЧУНЦИН
+            </span>
+          </div>
+        </div>
+
+        <!-- Connecting Flight Arc Button 3: Chongqing -> Sanya -->
+        <div class="flex items-center justify-center space-x-3 py-0.5">
+          <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#7b2cbf] to-transparent"></div>
+          <button
+            onclick="scrubToFlightSegment(2)"
+            class="px-3.5 py-1 rounded-full border border-[#9d4edd]/60 bg-[#17062e] hover:bg-[#2d0e59] font-mono text-[10px] tracking-[0.22em] text-[#e0c3fc] uppercase transition shrink-0"
+          >
+            ✈ ПЕРЕЛЁТ 1 300 КМ
+          </button>
+          <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#7b2cbf] to-transparent"></div>
+        </div>
+
+        <!-- ================= CITY 04: SANYA ================= -->
+        <div
+          id="city-nav-sanya"
+          onclick="flyToCity('sanya')"
+          class="city-nav-card cursor-pointer border border-[#5a189a]/80 hover:border-[#c77dff] bg-[#0d041c]/85 hover:bg-[#190836]/90 rounded px-4 py-3 transition group overflow-hidden"
+        >
+          <div class="route-city-item flex items-center justify-between gap-3">
+            <span class="font-mono text-xs sm:text-sm text-white/85 tracking-[0.16em] shrink-0">24.12</span>
+            <span class="font-['Cormorant_Garamond'] text-xl sm:text-[23px] font-bold tracking-[0.11em] text-[#b565ff] group-hover:text-white transition uppercase text-right leading-none truncate">
+              САНЬЯ
+            </span>
+          </div>
+        </div>
+
       </div>
 
       <!-- Panel Footer (Cleaned: Only Ω 8 Ω symbol) -->
-      <div class="px-5 py-2.5 border-t border-[#5a189a] bg-[#05010a] flex items-center justify-end text-[11px] font-mono tracking-[0.25em] text-white">
+      <div class="px-5 py-2.5 border-t border-[#5a189a] bg-[#05010a] flex items-center justify-end text-[11px] font-mono tracking-[0.25em] text-white shrink-0">
         <span>Ω 8 Ω</span>
       </div>
     </div>
@@ -544,8 +596,9 @@
         lat: 55.0302,
         lon: 82.9204,
         coordsText: '55.0302° N, 82.9204° E',
-        statusText: '01 / 02 // ТЕАТР НОВАТ',
-        camDist: 115.5
+        statusText: '01 / 04 // ТЕАТР НОВАТ',
+        camDist: 115.5,
+        scrubVal: 0
       },
       beijing: {
         id: 'beijing',
@@ -556,12 +609,44 @@
         lat: 39.9163,
         lon: 116.3972,
         coordsText: '39.9163° N, 116.3972° E',
-        statusText: '02 / 02 // ЗАПРЕТНЫЙ ГОРОД',
-        camDist: 115.5
+        statusText: '02 / 04 // ЗАПРЕТНЫЙ ГОРОД',
+        camDist: 115.5,
+        scrubVal: 333
+      },
+      chongqing: {
+        id: 'chongqing',
+        name: 'ЧУНЦИН',
+        date: '21.12',
+        orderBadge: 'ТОЧКА 03 // 21.12',
+        countryCode: '[КИТАЙ • ХУНЪЯДУН]',
+        lat: 29.5628,
+        lon: 106.5786,
+        coordsText: '29.5628° N, 106.5786° E',
+        statusText: '03 / 04 // ХУНЪЯДУН',
+        camDist: 115.5,
+        scrubVal: 667
+      },
+      sanya: {
+        id: 'sanya',
+        name: 'САНЬЯ',
+        date: '24.12',
+        orderBadge: 'ТОЧКА 04 // 24.12',
+        countryCode: '[КИТАЙ • НАНЬШАНЬ]',
+        lat: 18.2825,
+        lon: 109.2086,
+        coordsText: '18.2825° N, 109.2086° E',
+        statusText: '04 / 04 // ЦЕНТР НАНЬШАНЬ',
+        camDist: 115.5,
+        scrubVal: 1000
       }
     };
 
-    const CITIES_LIST = [CITIES_MAP.novosibirsk, CITIES_MAP.beijing];
+    const CITIES_LIST = [
+      CITIES_MAP.novosibirsk,
+      CITIES_MAP.beijing,
+      CITIES_MAP.chongqing,
+      CITIES_MAP.sanya
+    ];
     let currentCityIndex = 0;
 
     /*************************************************************************
@@ -1226,6 +1311,750 @@
       placeModelOnGlobe(gugong, CITIES_MAP.beijing.lat, CITIES_MAP.beijing.lon, 'beijing');
     })();
 
+    // 6.3 Shanghai Lujiazui Supertall Trio (Shanghai Tower, SWFC & Jin Mao Tower — Scenery Only, No City Route Point)
+    const SHANGHAI_COORDS = { lat: 31.2355, lon: 121.5055 };
+    let shanghaiHitSphere = null;
+    const shanghaiWorldAnchor = latLonToVector3(SHANGHAI_COORDS.lat, SHANGHAI_COORDS.lon, GLOBE_RADIUS + 4.9);
+
+    (function buildShanghaiTrio() {
+      const shanghaiGroup = new THREE.Group();
+      const s = 0.78;
+      shanghaiGroup.scale.set(s, s, s);
+
+      // 1. Baked Illuminated Skyscraper Facade Textures (High-FPS Low-Poly)
+      function createShanghaiTowerTexture() {
+        const c = document.createElement('canvas');
+        c.width = 256;
+        c.height = 512;
+        const ctx = c.getContext('2d');
+
+        // Deep blue-silver glass curtain wall gradient (matching Reference Photos 1 & 2)
+        const grad = ctx.createLinearGradient(0, 0, 256, 512);
+        grad.addColorStop(0, '#bae6fd');
+        grad.addColorStop(0.2, '#2563eb');
+        grad.addColorStop(0.6, '#1d4ed8');
+        grad.addColorStop(1, '#1e3a8a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 256, 512);
+
+        // Horizontal illuminated floor bands & 9 sky-lobby mechanical refuge zones
+        for (let y = 16; y < 504; y += 5) {
+          ctx.fillStyle = (y % 55 < 8) ? 'rgba(224, 242, 254, 0.92)' : 'rgba(147, 197, 253, 0.38)';
+          ctx.fillRect(0, y, 256, (y % 55 < 8) ? 3.5 : 1.8);
+        }
+
+        // Bright white-blue vertical/spiral LED spine & illuminated crown top (Reference Photo 1)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 256, 26);
+
+        ctx.strokeStyle = '#e0f2fe';
+        ctx.lineWidth = 14;
+        ctx.beginPath();
+        ctx.moveTo(65, 18);
+        ctx.lineTo(205, 505);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#60a5fa';
+        ctx.lineWidth = 24;
+        ctx.beginPath();
+        ctx.moveTo(65, 18);
+        ctx.lineTo(205, 505);
+        ctx.stroke();
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      function createSWFCTexture() {
+        const c = document.createElement('canvas');
+        c.width = 256;
+        c.height = 512;
+        const ctx = c.getContext('2d');
+
+        // Sleek steel-blue reflective glass curtain wall
+        const grad = ctx.createLinearGradient(0, 0, 0, 512);
+        grad.addColorStop(0, '#38bdf8');
+        grad.addColorStop(0.4, '#0284c7');
+        grad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 256, 512);
+
+        // Crisp illuminated office floor strips
+        for (let y = 60; y < 504; y += 6) {
+          ctx.fillStyle = (y % 18 === 0) ? 'rgba(224, 242, 254, 0.85)' : 'rgba(56, 189, 248, 0.32)';
+          ctx.fillRect(10, y, 236, 2.5);
+        }
+
+        // Silver diagonal structural bracing lines
+        ctx.strokeStyle = 'rgba(186, 230, 253, 0.65)';
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(6, 505);
+        ctx.lineTo(128, 75);
+        ctx.lineTo(250, 505);
+        ctx.stroke();
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      function createJinMaoTexture() {
+        const c = document.createElement('canvas');
+        c.width = 256;
+        c.height = 512;
+        const ctx = c.getContext('2d');
+
+        // Dark bronze-grey & silver lattice pagoda facade (Reference Photo 1 & 2)
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(0, 0, 256, 512);
+
+        // Warm golden-amber interior office windows + silver metal lattice mullions
+        for (let y = 12; y < 504; y += 7) {
+          ctx.fillStyle = (y % 35 < 6) ? '#f8fafc' : '#fbbf24';
+          for (let x = 16; x < 240; x += 22) {
+            if ((x + y) % 3 !== 0) {
+              ctx.fillRect(x, y, 14, 3.5);
+            }
+          }
+        }
+
+        // Vertical silver exoskeleton columns along the center and corners
+        ctx.fillStyle = 'rgba(203, 213, 225, 0.72)';
+        [0, 58, 120, 136, 198, 248].forEach((vx) => {
+          ctx.fillRect(vx, 0, 7, 512);
+        });
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      const matShanghaiTower = new THREE.MeshPhongMaterial({
+        map: createShanghaiTowerTexture(),
+        emissive: 0x1e40af,
+        emissiveIntensity: 0.42,
+        specular: 0xffffff,
+        shininess: 85
+      });
+      const matSWFC = new THREE.MeshPhongMaterial({
+        map: createSWFCTexture(),
+        emissive: 0x0369a1,
+        emissiveIntensity: 0.35,
+        specular: 0xe0f2fe,
+        shininess: 80
+      });
+      const matJinMao = new THREE.MeshPhongMaterial({
+        map: createJinMaoTexture(),
+        emissive: 0x451a03,
+        emissiveIntensity: 0.32,
+        specular: 0xfef3c7,
+        shininess: 65
+      });
+      const matCrownWhite = new THREE.MeshBasicMaterial({ color: 0xf8fafc });
+      const matCyanPortal = new THREE.MeshBasicMaterial({ color: 0x7dd3fc });
+
+      // =====================================================================
+      // TOWER 1 (RIGHT): SHANGHAI TOWER (632m — Tallest Twisted Megatall)
+      // =====================================================================
+      const shTowerHeight = 5.65;
+      const shTowerGeo = new THREE.CylinderGeometry(0.28, 0.48, shTowerHeight, 16, 18);
+      // Apply the signature 120-degree aerodynamic spiral twist & V-groove notch
+      const stPos = shTowerGeo.attributes.position;
+      for (let i = 0; i < stPos.count; i++) {
+        const y = stPos.getY(i);
+        const normY = (y + shTowerHeight * 0.5) / shTowerHeight; // 0 at base -> 1 at top
+        const angle = Math.atan2(stPos.getZ(i), stPos.getX(i));
+        // Heart-like cambered cross-section indent on one side
+        const groove = 1.0 - 0.14 * Math.exp(-Math.pow(Math.sin(angle * 0.5), 2) * 14);
+        const twistRad = normY * (Math.PI * 0.68); // ~120 deg twist
+
+        const rx = stPos.getX(i) * groove;
+        const rz = stPos.getZ(i) * groove;
+        stPos.setX(i, rx * Math.cos(twistRad) - rz * Math.sin(twistRad));
+        stPos.setZ(i, rx * Math.sin(twistRad) + rz * Math.cos(twistRad));
+      }
+      shTowerGeo.computeVertexNormals();
+
+      const shTowerMesh = new THREE.Mesh(shTowerGeo, matShanghaiTower);
+      shTowerMesh.position.set(0.72, shTowerHeight * 0.5, 0.08);
+      shanghaiGroup.add(shTowerMesh);
+
+      // Glowing White Beveled Crown Aperture atop Shanghai Tower
+      const shCrown = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.28, 0.38, 12), matCrownWhite);
+      shCrown.position.set(0.72, shTowerHeight + 0.12, 0.08);
+      shanghaiGroup.add(shCrown);
+
+      // =====================================================================
+      // TOWER 2 (LEFT): SHANGHAI WORLD FINANCIAL CENTER (492m — "Bottle Opener")
+      // =====================================================================
+      const swfcGroup = new THREE.Group();
+      swfcGroup.position.set(-0.74, 0, -0.10);
+
+      // Lower & Mid Sculpted Diagonal-Chiseled Shaft (0 -> 3.65)
+      const swfcLowerH = 3.65;
+      const swfcShaftGeo = new THREE.BoxGeometry(0.62, swfcLowerH, 0.62, 1, 8, 1);
+      const swPos = swfcShaftGeo.attributes.position;
+      for (let i = 0; i < swPos.count; i++) {
+        const y = swPos.getY(i);
+        const t = (y + swfcLowerH * 0.5) / swfcLowerH; // 0 bottom -> 1 below aperture
+        // Chisel corners into a sleek flat blade toward the top
+        swPos.setX(i, swPos.getX(i) * (1.0 - t * 0.12));
+        swPos.setZ(i, swPos.getZ(i) * (1.0 - t * 0.58));
+      }
+      swfcShaftGeo.computeVertexNormals();
+      const swfcShaft = new THREE.Mesh(swfcShaftGeo, matSWFC);
+      swfcShaft.position.y = swfcLowerH * 0.5;
+      swfcGroup.add(swfcShaft);
+
+      // Iconic Trapezoidal Sky-Portal Cutout ("Bottle Opener" Window at Top: 3.65 -> 4.42)
+      [-0.22, 0.22].forEach((px) => {
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.76, 0.25), matSWFC);
+        pillar.position.set(px, 4.02, 0);
+        swfcGroup.add(pillar);
+      });
+
+      // Top Skybridge Bar closing the bottle-opener cutout + glowing cyan portal trim
+      const swfcTopBridge = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.13, 0.26), matSWFC);
+      swfcTopBridge.position.set(0, 4.38, 0);
+      swfcGroup.add(swfcTopBridge);
+
+      const swfcBottomSill = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.05, 0.27), matCyanPortal);
+      swfcBottomSill.position.set(0, 3.67, 0);
+      swfcGroup.add(swfcBottomSill);
+
+      const swfcTopSill = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.05, 0.27), matCyanPortal);
+      swfcTopSill.position.set(0, 4.30, 0);
+      swfcGroup.add(swfcTopSill);
+
+      shanghaiGroup.add(swfcGroup);
+
+      // =====================================================================
+      // TOWER 3 (CENTER): JIN MAO TOWER (420.5m — Stepped Neo-Pagoda + Spire)
+      // =====================================================================
+      const jinMaoGroup = new THREE.Group();
+      jinMaoGroup.position.set(-0.08, 0, 0.36);
+
+      // 5 Stepped Octagonal Pagoda Tiers + Illuminated White Crown Pagoda + Tall Spire
+      const tiers = [
+        { rBot: 0.34, rTop: 0.32, h: 1.15, y: 0.575 },
+        { rBot: 0.30, rTop: 0.28, h: 0.95, y: 1.625 },
+        { rBot: 0.26, rTop: 0.24, h: 0.80, y: 2.500 },
+        { rBot: 0.22, rTop: 0.20, h: 0.65, y: 3.225 },
+        { rBot: 0.18, rTop: 0.15, h: 0.45, y: 3.775 }
+      ];
+      tiers.forEach((t) => {
+        const seg = new THREE.Mesh(new THREE.CylinderGeometry(t.rTop, t.rBot, t.h, 8), matJinMao);
+        seg.position.y = t.y;
+        jinMaoGroup.add(seg);
+      });
+
+      // Illuminated White Stepped Crown Cap & Spire (matching Reference Photo 1)
+      const jmCrown1 = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.14, 0.24, 8), matCrownWhite);
+      jmCrown1.position.y = 4.12;
+      jinMaoGroup.add(jmCrown1);
+
+      const jmSpire = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.032, 0.62, 6), matCrownWhite);
+      jmSpire.position.y = 4.52;
+      jinMaoGroup.add(jmSpire);
+
+      shanghaiGroup.add(jinMaoGroup);
+
+      // Invisible Hit-Sphere around the 3 Shanghai Towers for smooth mouse hover detection
+      shanghaiHitSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(3.4, 12, 12),
+        new THREE.MeshBasicMaterial({ visible: false })
+      );
+      shanghaiHitSphere.position.set(0, 2.8, 0);
+      shanghaiGroup.add(shanghaiHitSphere);
+
+      // Place at exact real-world Lujiazui coordinates (without adding Shanghai to city route)
+      const surfacePos = latLonToVector3(SHANGHAI_COORDS.lat, SHANGHAI_COORDS.lon, GLOBE_RADIUS - 0.12);
+      const radialNormal = surfacePos.clone().normalize();
+      shanghaiGroup.position.copy(surfacePos);
+      shanghaiGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), radialNormal);
+      globeGroup.add(shanghaiGroup);
+    })();
+
+    // 6.4 Chongqing — Hongyadong 11-Story Cliff Stilt-House Complex (Хунъядун / 洪崖洞 — Photos 1 & 2)
+    (function buildChongqingHongyadong() {
+      const hongyadong = new THREE.Group();
+      const s = 0.68;
+      hongyadong.scale.set(s, s, s);
+
+      // 1. Baked Glowing Golden-Amber Wooden Facades, Red Lanterns & "洪崖洞" Neon Sign Texture (512x512)
+      function createHongyadongFacadeTexture() {
+        const c = document.createElement('canvas');
+        c.width = 512;
+        c.height = 512;
+        const ctx = c.getContext('2d');
+
+        // Deep dark timber & cliff shadow background
+        ctx.fillStyle = '#1b0f0a';
+        ctx.fillRect(0, 0, 512, 512);
+
+        const floors = 9;
+        const floorH = 512 / floors;
+
+        for (let f = 0; f < floors; f++) {
+          const y = f * floorH;
+
+          // Glowing golden-amber floor contour strip (neon roof/balcony outline)
+          ctx.fillStyle = '#ffb703';
+          ctx.fillRect(0, y, 512, 4);
+          ctx.fillStyle = '#ffd166';
+          ctx.fillRect(0, y + 1, 512, 2);
+
+          // Wooden balcony railing balustrade at bottom of each tier
+          ctx.fillStyle = '#3d1e10';
+          ctx.fillRect(0, y + floorH - 10, 512, 10);
+          ctx.fillStyle = '#f59e0b';
+          for (let rx = 4; rx < 512; rx += 10) {
+            ctx.fillRect(rx, y + floorH - 9, 4, 6);
+          }
+
+          // Warm illuminated Bayu wooden windows & hanging red Chinese lanterns
+          const bays = 12;
+          const bayW = 512 / bays;
+          for (let b = 0; b < bays; b++) {
+            const bx = b * bayW;
+
+            // Dark timber stilt pillar
+            ctx.fillStyle = '#261209';
+            ctx.fillRect(bx, y + 4, 6, floorH - 14);
+
+            // Warm golden-orange interior window glow
+            const winGrad = ctx.createLinearGradient(0, y + 8, 0, y + floorH - 12);
+            winGrad.addColorStop(0, '#ff9e00');
+            winGrad.addColorStop(0.5, '#ffd166');
+            winGrad.addColorStop(1, '#e85d04');
+            ctx.fillStyle = winGrad;
+            ctx.fillRect(bx + 8, y + 9, bayW - 14, floorH - 21);
+
+            // Traditional wooden window lattice mullions
+            ctx.strokeStyle = '#3b1c0e';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(bx + 8, y + 9, bayW - 14, floorH - 21);
+            ctx.beginPath();
+            ctx.moveTo(bx + bayW * 0.5, y + 9);
+            ctx.lineTo(bx + bayW * 0.5, y + floorH - 12);
+            ctx.stroke();
+
+            // Glowing red Chinese lanterns hanging under eaves (Reference Photo 1)
+            if ((b + f) % 2 === 0) {
+              ctx.fillStyle = '#ef233c';
+              ctx.beginPath();
+              ctx.arc(bx + bayW * 0.5, y + 14, 4.5, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillStyle = '#ffccd5';
+              ctx.fillRect(bx + bayW * 0.5 - 1.5, y + 12, 3, 3);
+            }
+          }
+        }
+
+        // Iconic Glowing "洪崖洞" (HONGYA CAVE) Signboard on Upper Tier (Reference Photo 1)
+        ctx.fillStyle = '#180c08';
+        ctx.strokeStyle = '#ffb703';
+        ctx.lineWidth = 3;
+        ctx.fillRect(166, 62, 180, 48);
+        ctx.strokeRect(166, 62, 180, 48);
+
+        ctx.fillStyle = '#ffd166';
+        ctx.font = 'bold 26px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('洪 崖 洞', 256, 81);
+        ctx.font = 'bold 9px monospace';
+        ctx.fillStyle = '#fb8500';
+        ctx.fillText('HONGYA CAVE', 256, 101);
+
+        // Vertical White/Neon Banner on Left Edge ("重庆小天鹅" in Reference Photo 1)
+        ctx.fillStyle = '#140b0e';
+        ctx.fillRect(26, 48, 28, 125);
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(26, 48, 28, 125);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 16px sans-serif';
+        ['重', '庆', '洪', '崖'].forEach((ch, idx) => {
+          ctx.fillText(ch, 40, 68 + idx * 26);
+        });
+
+        const tex = new THREE.CanvasTexture(c);
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.wrapT = THREE.RepeatWrapping;
+        return tex;
+      }
+
+      // 2. Baked Golden-Lit Traditional Grey-Brown Tiled Roof Texture
+      function createHongyadongRoofTexture() {
+        const c = document.createElement('canvas');
+        c.width = 256;
+        c.height = 128;
+        const ctx = c.getContext('2d');
+
+        const grad = ctx.createLinearGradient(0, 0, 0, 128);
+        grad.addColorStop(0, '#3d2817');
+        grad.addColorStop(0.65, '#7f4f24');
+        grad.addColorStop(0.9, '#f59e0b');
+        grad.addColorStop(1, '#ffd166');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 256, 128);
+
+        // Tile ribbing ridges
+        for (let x = 0; x < 256; x += 6) {
+          ctx.fillStyle = x % 12 === 0 ? 'rgba(255, 209, 102, 0.38)' : 'rgba(20, 12, 8, 0.45)';
+          ctx.fillRect(x, 0, 3, 122);
+        }
+
+        // Bright golden LED strip along the roof eave edge
+        ctx.fillStyle = '#ffe066';
+        ctx.fillRect(0, 120, 256, 8);
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      const facadeTex = createHongyadongFacadeTexture();
+      const roofTex = createHongyadongRoofTexture();
+
+      const matFacade = new THREE.MeshLambertMaterial({
+        map: facadeTex,
+        emissive: 0xd97706,
+        emissiveIntensity: 0.45
+      });
+      const matRoof = new THREE.MeshPhongMaterial({
+        map: roofTex,
+        emissive: 0x78350f,
+        emissiveIntensity: 0.35,
+        specular: 0xffd166,
+        shininess: 45
+      });
+      const matCliffRock = new THREE.MeshLambertMaterial({ color: 0x1c1917 });
+      const matViaductRoad = new THREE.MeshLambertMaterial({ color: 0x334155 });
+      const matRedBridge = new THREE.MeshLambertMaterial({ color: 0xdc2626 });
+
+      // Helper for pitched traditional Chinese Diaojiaolou roof with golden ridge
+      function addPitchedRoof(w, d, h, x, y, z) {
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(1.0, h, 4), matRoof);
+        roof.rotation.y = Math.PI / 4;
+        roof.scale.set(w * 0.78, 1, d * 0.78);
+        roof.position.set(x, y + h * 0.45, z);
+        hongyadong.add(roof);
+      }
+
+      // 1. Steep Dark Cliff Backing & Lower Riverfront Highway Viaduct on Stilts (Photos 1 & 2)
+      const cliffBack = new THREE.Mesh(new THREE.BoxGeometry(2.35, 1.65, 0.55), matCliffRock);
+      cliffBack.position.set(0, 0.82, -0.42);
+      hongyadong.add(cliffBack);
+
+      const frontViaduct = new THREE.Mesh(new THREE.BoxGeometry(2.65, 0.16, 0.32), matViaductRoad);
+      frontViaduct.position.set(0, 0.22, 0.58);
+      hongyadong.add(frontViaduct);
+
+      // 2. Stepped 11-Story Terraced Stilt-House Tiers Cascading Up the Cliff (Low-poly blocks + pitched roofs)
+      // Lower Wide Riverfront Terrace (Stories 1-4)
+      const tier1 = new THREE.Mesh(new THREE.BoxGeometry(2.30, 0.48, 0.65), matFacade);
+      tier1.position.set(0, 0.46, 0.22);
+      hongyadong.add(tier1);
+      addPitchedRoof(1.15, 0.78, 0.22, -0.62, 0.70, 0.25);
+      addPitchedRoof(1.15, 0.78, 0.22,  0.62, 0.70, 0.25);
+
+      // Protruding CentralStilt Pavilion & Gables (Stories 4-7)
+      const centerPavilion = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.56, 0.72), matFacade);
+      centerPavilion.position.set(0.05, 0.78, 0.30);
+      hongyadong.add(centerPavilion);
+      addPitchedRoof(1.12, 0.86, 0.26, 0.05, 1.06, 0.32);
+
+      // Middle Stepped Cliffside Terraces (Stories 5-8, Left & Right Wings)
+      const tier2Left = new THREE.Mesh(new THREE.BoxGeometry(0.86, 0.58, 0.62), matFacade);
+      tier2Left.position.set(-0.68, 0.92, -0.02);
+      hongyadong.add(tier2Left);
+      addPitchedRoof(1.02, 0.74, 0.24, -0.68, 1.21, 0.0);
+
+      const tier2Right = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.54, 0.60), matFacade);
+      tier2Right.position.set(0.66, 0.88, -0.04);
+      hongyadong.add(tier2Right);
+      addPitchedRoof(1.06, 0.72, 0.24, 0.66, 1.15, -0.02);
+
+      // Upper Iconic "洪崖洞" Main Cliff Tower Block (Stories 8-11, Reference Photo 1)
+      const upperMainTower = new THREE.Mesh(new THREE.BoxGeometry(1.18, 0.68, 0.64), matFacade);
+      upperMainTower.position.set(-0.08, 1.42, -0.18);
+      hongyadong.add(upperMainTower);
+      addPitchedRoof(1.36, 0.80, 0.30, -0.08, 1.76, -0.16);
+
+      // Topmost Attic Watchtower Pagoda Crown (Story 11 Peak)
+      const crownAttic = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.36, 0.48), matFacade);
+      crownAttic.position.set(-0.18, 1.92, -0.22);
+      hongyadong.add(crownAttic);
+      addPitchedRoof(0.74, 0.64, 0.25, -0.18, 2.10, -0.22);
+
+      // Iconic Red Qiansimen Steel Arch Bridge Truss Segment on the Left Flank (Reference Photo 1)
+      const bridgeDeck = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.14, 0.24), matRedBridge);
+      bridgeDeck.position.set(-1.38, 0.86, -0.12);
+      hongyadong.add(bridgeDeck);
+
+      placeModelOnGlobe(hongyadong, CITIES_MAP.chongqing.lat, CITIES_MAP.chongqing.lon, 'chongqing');
+    })();
+
+    // 6.5 Sanya — Nanshan Buddhist Cultural Center / 108m Guanyin Statue on Island (Буддийский центр Наньшань — Photos 3 & 4)
+    (function buildSanyaNanshanGuanyin() {
+      const nanshan = new THREE.Group();
+      const s = 0.72;
+      nanshan.scale.set(s, s, s);
+
+      // 1. Baked Circular Island Texture: Rocky Tetrapod Breakwater Ring + Green Lawn Arcs + White Plaza (Photos 3 & 4)
+      function createNanshanIslandTexture() {
+        const c = document.createElement('canvas');
+        c.width = 512;
+        c.height = 512;
+        const ctx = c.getContext('2d');
+
+        const cx = 256;
+        const cy = 256;
+
+        // Outer turquoise ocean fringe blend
+        ctx.fillStyle = '#0d9488';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Outer ring of white/grey coastal breakwater tetrapod rocks (Photos 3 & 4)
+        ctx.fillStyle = '#cbd5e1';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 248, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Speckled rocky breakwater texture dots
+        for (let i = 0; i < 650; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const rad = 172 + Math.random() * 72;
+          const rx = cx + Math.cos(ang) * rad;
+          const ry = cy + Math.sin(ang) * rad;
+          ctx.fillStyle = i % 3 === 0 ? '#f8fafc' : (i % 2 === 0 ? '#64748b' : '#94a3b8');
+          ctx.fillRect(rx - 3, ry - 3, 6, 6);
+        }
+
+        // Inner circular white stone promenade deck
+        ctx.fillStyle = '#e2e8f0';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 174, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+
+        // 6 Green landscaped lawn arc segments around the pedestal (matching Photos 3 & 4)
+        for (let k = 0; k < 6; k++) {
+          const a1 = k * (Math.PI / 3) + 0.12;
+          const a2 = (k + 1) * (Math.PI / 3) - 0.12;
+          ctx.fillStyle = '#4d7c0f';
+          ctx.beginPath();
+          ctx.arc(cx, cy, 156, a1, a2);
+          ctx.arc(cx, cy, 122, a2, a1, true);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Inner cream-white marble temple courtyard square
+        ctx.fillStyle = '#f8fafc';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 118, 0, Math.PI * 2);
+        ctx.fill();
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      // 2. Baked Golden Multi-Petal Lotus Throne Texture
+      function createGoldenLotusTexture() {
+        const c = document.createElement('canvas');
+        c.width = 256;
+        c.height = 128;
+        const ctx = c.getContext('2d');
+
+        const grad = ctx.createLinearGradient(0, 0, 0, 128);
+        grad.addColorStop(0, '#fef08a');
+        grad.addColorStop(0.45, '#f59e0b');
+        grad.addColorStop(1, '#92400e');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 256, 128);
+
+        // 3 rows of overlapping golden lotus petals
+        const rows = 3;
+        const cols = 16;
+        const colW = 256 / cols;
+        const rowH = 128 / rows;
+        ctx.strokeStyle = '#78350f';
+        ctx.lineWidth = 2;
+
+        for (let r = 0; r < rows; r++) {
+          const y = r * rowH;
+          const offset = (r % 2) * (colW * 0.5);
+          for (let col = -1; col <= cols; col++) {
+            const x = col * colW + offset;
+            ctx.fillStyle = (r + col) % 2 === 0 ? 'rgba(254, 240, 138, 0.45)' : 'rgba(180, 83, 9, 0.35)';
+            ctx.beginPath();
+            ctx.moveTo(x, y + rowH);
+            ctx.quadraticCurveTo(x + colW * 0.5, y - 6, x + colW, y + rowH);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+          }
+        }
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      // 3. Baked White Marble Pedestal Base with Dark Portal Entrances Texture
+      function createPedestalWallTexture() {
+        const c = document.createElement('canvas');
+        c.width = 256;
+        c.height = 128;
+        const ctx = c.getContext('2d');
+
+        ctx.fillStyle = '#f1f5f9';
+        ctx.fillRect(0, 0, 256, 128);
+
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(0, 0, 256, 14);
+        ctx.fillRect(0, 56, 256, 8);
+
+        // Dark recessed temple portal doors on each side (Photos 3 & 4)
+        [44, 114, 184].forEach((px) => {
+          ctx.fillStyle = '#334155';
+          ctx.fillRect(px, 68, 28, 60);
+          ctx.fillStyle = '#b45309';
+          ctx.fillRect(px + 4, 74, 20, 54);
+        });
+
+        return new THREE.CanvasTexture(c);
+      }
+
+      const islandTex = createNanshanIslandTexture();
+      const lotusTex = createGoldenLotusTexture();
+      const pedestalTex = createPedestalWallTexture();
+
+      const matIsland = new THREE.MeshLambertMaterial({ map: islandTex });
+      const matPedestal = new THREE.MeshLambertMaterial({ map: pedestalTex });
+      const matPureWhiteStatue = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        emissive: 0xe2e8f0,
+        emissiveIntensity: 0.22,
+        specular: 0xffffff,
+        shininess: 55
+      });
+      const matGoldenLotus = new THREE.MeshPhongMaterial({
+        map: lotusTex,
+        emissive: 0x78350f,
+        emissiveIntensity: 0.28,
+        specular: 0xfef08a,
+        shininess: 75
+      });
+      const matGoldenHalo = new THREE.MeshPhongMaterial({
+        color: 0xf59e0b,
+        emissive: 0x92400e,
+        emissiveIntensity: 0.35,
+        specular: 0xfef08a,
+        shininess: 85
+      });
+      const matBridgeWhite = new THREE.MeshLambertMaterial({ color: 0xe2e8f0 });
+
+      // 1. Circular Artificial Breakwater Island Disk (Seated flush on coastal surface)
+      const islandDisk = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.42, 1.52, 0.24, 24),
+        matIsland
+      );
+      islandDisk.position.y = 0.14;
+      nanshan.add(islandDisk);
+
+      // 2. White Causeway Bridge Connecting the Lotus Island to the Shore Plaza (Photos 3 & 4)
+      const causewayBridge = new THREE.Mesh(
+        new THREE.BoxGeometry(0.24, 0.14, 1.55),
+        matBridgeWhite
+      );
+      causewayBridge.position.set(0, 0.20, -1.72);
+      nanshan.add(causewayBridge);
+
+      const shorePlaza = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.58, 0.62, 0.18, 16, 1, false, -Math.PI * 0.5, Math.PI),
+        matBridgeWhite
+      );
+      shorePlaza.position.set(0, 0.18, -2.48);
+      nanshan.add(shorePlaza);
+
+      // 3. Stepped White Marble Octagonal/Square Buddhist Temple Pedestal Base
+      const baseTier1 = new THREE.Mesh(new THREE.BoxGeometry(1.16, 0.28, 1.16), matPedestal);
+      baseTier1.position.y = 0.38;
+      nanshan.add(baseTier1);
+
+      const baseTier2 = new THREE.Mesh(new THREE.CylinderGeometry(0.64, 0.72, 0.22, 8), matPedestal);
+      baseTier2.rotation.y = Math.PI / 8;
+      baseTier2.position.y = 0.62;
+      nanshan.add(baseTier2);
+
+      // 4. Prominent Golden Multi-Petal Lotus Throne (Photos 3 & 4)
+      const lotusThrone = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.56, 0.44, 0.28, 18),
+        matGoldenLotus
+      );
+      lotusThrone.position.y = 0.86;
+      nanshan.add(lotusThrone);
+
+      // 5. Towering 108m Three-Sided White Guanyin Bodhisattva Statue (Smooth Lathe Silhouette)
+      const statueProfile = [
+        new THREE.Vector2(0.38, 0.00), // Flowing robe hem on lotus pedestal
+        new THREE.Vector2(0.33, 0.25),
+        new THREE.Vector2(0.28, 0.75), // Draped lower robes
+        new THREE.Vector2(0.24, 1.35), // Waist / clasped hands level
+        new THREE.Vector2(0.27, 1.75), // Three-sided shoulders &shawls
+        new THREE.Vector2(0.18, 2.02), // Neck
+        new THREE.Vector2(0.21, 2.28), // Three serene heads
+        new THREE.Vector2(0.14, 2.48), // High chignon crowns
+        new THREE.Vector2(0.00, 2.56)
+      ];
+      const statueGeo = new THREE.LatheGeometry(statueProfile, 18);
+      const statueMesh = new THREE.Mesh(statueGeo, matPureWhiteStatue);
+      statueMesh.position.y = 0.98;
+      nanshan.add(statueMesh);
+
+      // 6. Iconic Three-Sided Pointed Golden Mandorla Halo Crown Behind the Three Heads (Photos 3 & 4)
+      const haloGroup = new THREE.Group();
+      haloGroup.position.y = 3.28;
+      for (let k = 0; k < 3; k++) {
+        const angle = (k * Math.PI * 2) / 3;
+        const haloLeaf = new THREE.Mesh(
+          new THREE.ConeGeometry(0.26, 0.62, 4),
+          matGoldenHalo
+        );
+        haloLeaf.scale.set(1.0, 1.0, 0.28);
+        haloLeaf.position.set(Math.sin(angle) * 0.09, 0.06, Math.cos(angle) * 0.09);
+        haloLeaf.rotation.y = angle;
+        haloGroup.add(haloLeaf);
+      }
+      nanshan.add(haloGroup);
+
+      placeModelOnGlobe(nanshan, CITIES_MAP.sanya.lat, CITIES_MAP.sanya.lon, 'sanya');
+    })();
+
+    // Floating Hover Tooltip for Shanghai Trio (Same style as Aircraft Tooltip)
+    const shanghaiTooltipEl = document.createElement('div');
+    shanghaiTooltipEl.id = 'shanghai-tooltip';
+    shanghaiTooltipEl.className = 'fixed pointer-events-none z-40 transition-all duration-200 opacity-0 scale-95';
+    shanghaiTooltipEl.style.transform = 'translate(-50%, -125%)';
+    shanghaiTooltipEl.innerHTML = `
+      <div class="flex flex-col items-center">
+        <div class="px-3.5 py-2 bg-[#06020d]/95 backdrop-blur-md border border-[#9d4edd] rounded shadow-[0_0_25px_rgba(56,189,248,0.45),0_0_18px_rgba(157,78,221,0.85)] flex items-center gap-3">
+          <div class="w-7 h-7 rounded bg-[#0c192c] border border-[#38bdf8]/60 flex items-center justify-center shrink-0 text-[#38bdf8] font-mono text-xs font-bold">
+            III
+          </div>
+          <div class="h-6 w-[1px] bg-[#5a189a]/80"></div>
+          <div class="flex flex-col leading-tight pr-0.5">
+            <span class="font-mono text-[9px] tracking-[0.18em] text-[#38bdf8] font-bold uppercase">ШАНХАЙ</span>
+            <span class="font-mono text-xs sm:text-sm font-bold tracking-[0.14em] text-white whitespace-nowrap">
+              Шанхайские башни
+            </span>
+          </div>
+        </div>
+        <div class="w-[1.5px] h-3.5 bg-gradient-to-b from-[#38bdf8] to-[#c77dff]"></div>
+        <div class="w-2 h-2 rounded-full border border-white bg-[#38bdf8] shadow-[0_0_8px_#38bdf8]"></div>
+      </div>
+    `;
+    labelsContainer.appendChild(shanghaiTooltipEl);
+    let isShanghaiHovered = false;
+
     /*************************************************************************
      * 7. 2D FLOATING CITY LABELS ON GLOBE
      *************************************************************************/
@@ -1260,25 +2089,42 @@
     });
 
     /*************************************************************************
-     * 8. 3D FLIGHT ARC (NOVOSIBIRSK ➔ BEIJING) & S7 AIRLINES AIRBUS A321
+     * 8. SEQUENTIAL 3D FLIGHT ARCS (NOVOSIBIRSK ➔ BEIJING ➔ CHONGQING ➔ SANYA)
      *************************************************************************/
-    const startFlightVec = latLonToVector3(CITIES_MAP.novosibirsk.lat, CITIES_MAP.novosibirsk.lon, GLOBE_RADIUS + 0.15);
-    const midFlightVec = latLonToVector3(48.0, 99.5, GLOBE_RADIUS + 16.5);
-    const endFlightVec = latLonToVector3(CITIES_MAP.beijing.lat, CITIES_MAP.beijing.lon, GLOBE_RADIUS + 0.15);
+    function createFlightArcCurve(cityA, cityB, peakAltitude) {
+      const startVec = latLonToVector3(cityA.lat, cityA.lon, GLOBE_RADIUS + 0.15);
+      const endVec = latLonToVector3(cityB.lat, cityB.lon, GLOBE_RADIUS + 0.15);
+      const midLat = (cityA.lat + cityB.lat) * 0.5;
+      const midLon = (cityA.lon + cityB.lon) * 0.5;
+      const midVec = latLonToVector3(midLat, midLon, GLOBE_RADIUS + peakAltitude);
+      return new THREE.QuadraticBezierCurve3(startVec, midVec, endVec);
+    }
 
-    const flightCurve = new THREE.QuadraticBezierCurve3(
-      startFlightVec,
-      midFlightVec,
-      endFlightVec
-    );
+    // Arc 0: Novosibirsk ➔ Beijing (16.12 — 17.12, with S7 5723 Airbus A321)
+    const flightCurveNskPeking = createFlightArcCurve(CITIES_MAP.novosibirsk, CITIES_MAP.beijing, 16.5);
+    // Arc 1: Beijing ➔ Chongqing (21.12, Trajectory Line Only)
+    const flightCurvePekingChongqing = createFlightArcCurve(CITIES_MAP.beijing, CITIES_MAP.chongqing, 10.5);
+    // Arc 2: Chongqing ➔ Sanya (24.12, Trajectory Line Only)
+    const flightCurveChongqingSanya = createFlightArcCurve(CITIES_MAP.chongqing, CITIES_MAP.sanya, 9.2);
 
-    const arcTubeGeo = new THREE.TubeGeometry(flightCurve, 48, 0.14, 8, false);
+    // Keep flightCurve alias for the S7 5723 Airbus A321 animation on Segment 0
+    const flightCurve = flightCurveNskPeking;
+    const ROUTE_CURVES = [
+      flightCurveNskPeking,
+      flightCurvePekingChongqing,
+      flightCurveChongqingSanya
+    ];
+
     const arcTubeMat = new THREE.MeshBasicMaterial({
       color: 0xc77dff,
       transparent: true,
-      opacity: 0.68
+      opacity: 0.72
     });
-    globeGroup.add(new THREE.Mesh(arcTubeGeo, arcTubeMat));
+
+    ROUTE_CURVES.forEach((curve) => {
+      const tubeGeo = new THREE.TubeGeometry(curve, 48, 0.14, 8, false);
+      globeGroup.add(new THREE.Mesh(tubeGeo, arcTubeMat));
+    });
 
     // =========================================================================
     // HIGH-DETAIL PROCEDURAL TEXTURES & 3D GEOMETRY FOR S7 AIRLINES A321 (VQ-BGU)
@@ -2257,8 +3103,8 @@
       targetLookAt.copy(surfaceCenter);
       isCameraFlying = true;
 
-      // Sync Scroll-World scrubber
-      document.getElementById('route-scrubber').value = cityId === 'novosibirsk' ? 0 : 1000;
+      // Sync Scroll-World scrubber to the city's position along the 4-city route
+      document.getElementById('route-scrubber').value = city.scrubVal;
       document.getElementById('scrub-percentage').textContent = city.name;
     }
 
@@ -2267,46 +3113,69 @@
       flyToCity(CITIES_LIST[currentCityIndex].id);
     }
 
-    function scrubToMidFlight() {
+    function scrubToFlightSegment(segIdx) {
       resetIdleRotationTimer();
-      document.getElementById('route-scrubber').value = 500;
-      onScrubberInput(500);
+      // Midpoints of the 3 flight segments along the 0..1000 slider:
+      // Segment 0 (Novosibirsk -> Beijing): 167
+      // Segment 1 (Beijing -> Chongqing):   500
+      // Segment 2 (Chongqing -> Sanya):     833
+      const segmentMidValues = [167, 500, 833];
+      const val = segmentMidValues[segIdx] !== undefined ? segmentMidValues[segIdx] : 167;
+      document.getElementById('route-scrubber').value = val;
+      onScrubberInput(val);
+    }
+
+    function scrubToMidFlight() {
+      scrubToFlightSegment(0);
     }
 
     function onScrubberInput(val) {
-      const t = parseFloat(val) / 1000;
+      const tGlobal = Math.max(0, Math.min(1, parseFloat(val) / 1000));
       resetIdleRotationTimer();
       isCameraFlying = true;
 
-      const focusPoint = flightCurve.getPointAt(t);
+      // Map global tGlobal (0..1) across the 3 sequential flight segments
+      const totalSegments = ROUTE_CURVES.length; // 3 segments
+      const scaled = tGlobal * totalSegments;
+      const segIdx = Math.min(totalSegments - 1, Math.floor(scaled));
+      const localT = scaled - segIdx;
+
+      const activeCurve = ROUTE_CURVES[segIdx];
+      const focusPoint = activeCurve.getPointAt(localT);
       const normal = focusPoint.clone().normalize();
 
-      const midArcFactor = Math.sin(t * Math.PI);
-      const camAltitude = 112.5 + midArcFactor * 38;
+      const midArcFactor = Math.sin(localT * Math.PI);
+      const peakCamBoost = segIdx === 0 ? 38 : 26;
+      const camAltitude = 112.5 + midArcFactor * peakCamBoost;
 
       targetCamPos.copy(normal.multiplyScalar(camAltitude));
       targetLookAt.copy(focusPoint);
 
-      if (t < 0.5) {
-        currentCityIndex = 0;
-        updateCityUI(CITIES_LIST[0]);
-      } else {
-        currentCityIndex = 1;
-        updateCityUI(CITIES_LIST[1]);
-      }
+      // Update active city card based on nearest city along the 4-stop route
+      const nearestCityIdx = Math.min(
+        CITIES_LIST.length - 1,
+        Math.round(tGlobal * (CITIES_LIST.length - 1))
+      );
+      currentCityIndex = nearestCityIdx;
+      updateCityUI(CITIES_LIST[nearestCityIdx]);
 
-      document.getElementById('scrub-percentage').textContent = `МАРШРУТ: ${Math.round(t * 100)}%`;
+      const segLabels = [
+        'НОВОСИБИРСК ➔ ПЕКИН',
+        'ПЕКИН ➔ ЧУНЦИН',
+        'ЧУНЦИН ➔ САНЬЯ'
+      ];
+      document.getElementById('scrub-percentage').textContent = `${segLabels[segIdx]} (${Math.round(tGlobal * 100)}%)`;
     }
 
     function resetGlobeView() {
       resetIdleRotationTimer();
-      targetCamPos.copy(latLonToVector3(46, 98, 228));
+      targetCamPos.copy(latLonToVector3(38, 104, 232));
       targetLookAt.set(0, 0, 0);
       isCameraFlying = true;
     }
 
     /*************************************************************************
-     * 10. RAYCASTING (CLICKING A 3D MODEL OR HOVERING THE S7 A321 AIRCRAFT)
+     * 10. RAYCASTING (CLICKING A 3D MODEL OR HOVERING THE S7 A321 / SHANGHAI)
      *************************************************************************/
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -2327,7 +3196,11 @@
       raycaster.setFromCamera(mouse, camera);
       const planeHit = raycaster.intersectObject(planeHitSphere, false);
       isPlaneHovered = planeHit.length > 0;
-      container.style.cursor = isPlaneHovered ? 'pointer' : 'grab';
+
+      const shanghaiHit = shanghaiHitSphere ? raycaster.intersectObject(shanghaiHitSphere, false) : [];
+      isShanghaiHovered = shanghaiHit.length > 0;
+
+      container.style.cursor = (isPlaneHovered || isShanghaiHovered) ? 'pointer' : 'grab';
     });
 
     renderer.domElement.addEventListener('pointerdown', (e) => {
@@ -2473,6 +3346,33 @@
       } else {
         flightTooltipEl.style.opacity = '0';
         isPlaneHovered = false;
+      }
+
+      // Project 3D Shanghai Trio Tooltip on Hover
+      pinNormalVec.copy(shanghaiWorldAnchor).normalize();
+      camToPinVec.copy(camera.position).sub(shanghaiWorldAnchor).normalize();
+      const shanghaiVisibleDot = pinNormalVec.dot(camToPinVec);
+
+      if (shanghaiVisibleDot > -0.02) {
+        tempVec.copy(shanghaiWorldAnchor).project(camera);
+        const sx = (tempVec.x * 0.5 + 0.5) * window.innerWidth;
+        const sy = (-(tempVec.y * 0.5) + 0.5) * window.innerHeight;
+
+        const shanghaiScreenDist = Math.hypot(lastPointerPos.x - sx, lastPointerPos.y - sy);
+        const showShanghaiCard = isShanghaiHovered || shanghaiScreenDist < 32;
+
+        shanghaiTooltipEl.style.left = `${sx}px`;
+        shanghaiTooltipEl.style.top = `${sy}px`;
+        if (showShanghaiCard) {
+          shanghaiTooltipEl.style.opacity = '1';
+          shanghaiTooltipEl.style.transform = 'translate(-50%, -125%) scale(1)';
+        } else {
+          shanghaiTooltipEl.style.opacity = '0';
+          shanghaiTooltipEl.style.transform = 'translate(-50%, -115%) scale(0.95)';
+        }
+      } else {
+        shanghaiTooltipEl.style.opacity = '0';
+        isShanghaiHovered = false;
       }
 
       // Animate Radar & Beacons on 3D Scenery
